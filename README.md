@@ -29,3 +29,7 @@ Currently we plan to compare the tools using the following dataset:
 1. Write wrapper tools for all of these
 1. Run all tools to record results and resource usages
 1. Plot results
+
+
+### Requirements
+1. FracKmcSketch -- needs to be in path

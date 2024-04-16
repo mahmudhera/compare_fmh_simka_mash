@@ -1,6 +1,7 @@
 """
 This script will take the following inputs:
 1. The path to a file that contains absolute path of the input files (files can be fasta, fastq, gz etc.)
+1. The kmer size (default: 21)
 1. The scale factor (scaled value)
 1. The metric to compute (e.g. 'cosine', 'braycurtis', 'canberra', 'jaccard', 'kulsinski')
 1. The number of cores to use
@@ -15,6 +16,7 @@ The script will then do the following:
 
 # Requirements
 # FracKmc needs to be in the PATH
+# Download all binaries of FracKmc, and then add the path to the binaries to the PATH
 
 # Usage
 # python run_by_fmh_wrapper.py -i <input_file> -s <scale_factor> -m <metric> -w <weighted> -c <cores> -o <output_file>
@@ -28,6 +30,7 @@ import multiprocessing
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run FMH to compute metrics on input files')
     parser.add_argument('-i', '--input_file', type=str, help='Path to file containing input files')
+    parser.add_argument('-k', '--ksize', type=int, help='Kmer size', default=21)
     parser.add_argument('-s', '--scale_factor', type=int, help='Scale factor', default=1000)
     parser.add_argument('-m', '--metric', type=str, help='Metric to compute', default='cosine')
     parser.add_argument('-c', '--cores', type=int, help='Number of cores', default=128)
@@ -58,9 +61,19 @@ def check_num_cores(cores):
         raise ValueError(f'Machine does not have enough cores. Number of cores requested: {cores}, Number of cores available: {num_cores}')
 
 
-def generate_fmh_sketch(file, scale_factor, output_file):
+def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta):
     # use the proper command
-    pass
+    # command: fracKmcSketch <input_filename> <sketch_filename> --ksize <ksize> --scaled <scaled> --seed 42 --fa/--fq
+    if is_fasta:
+        cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed 42 --fa'
+    else:
+        cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed 42 --fq'
+
+    # run the command and check for errors
+    try:
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        raise Exception(f'Error while generating sketch for file {file}: {e}')
 
 
 def compute_metric_for_a_pair(file1, file2, metric):
