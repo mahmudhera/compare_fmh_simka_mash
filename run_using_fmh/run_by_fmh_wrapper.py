@@ -151,8 +151,10 @@ def main():
     print('Computing pairwise metrics')
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
-            sig1 = filename_to_sig_dict[input_files[i]]
-            sig2 = filename_to_sig_dict[input_files[j]]
+            sketch1_filename = input_files[i] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
+            sketch2_filename = input_files[j] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
+            sig1 = filename_to_sig_dict[sketch1_filename]
+            sig2 = filename_to_sig_dict[sketch2_filename]
             metric = compute_metric_for_a_pair(sig1, sig2, args.metric)
             pair_to_metric_dict[(input_files[i], input_files[j])] = metric
 
