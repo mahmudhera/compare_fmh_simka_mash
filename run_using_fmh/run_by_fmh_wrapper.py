@@ -137,21 +137,16 @@ def main():
     
     # generate sketches
     sketch_files = []
-    process_list = []
     for file in input_files:
         # sketch filename format: <input_filename>_ksize_scaled_seed.sig
         sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
         sketch_files.append(sketch_filename)
 
-        # start a thread to generate the sketch
-        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, file.endswith('.fa') or file.endswith('.fasta'), args.seed))
-        p.start()
-        process_list.append(p)
+        # generate the sketch
+        is_fasta = file.endswith('.fa') or file.endswith('.fasta')
+        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.seed)
 
-    # wait for all the processes to finish
-    for p in process_list:
-        p.join()
-
+    # TODO: make this part parallel
     # read in all signatures
     filename_to_sig_dict = {}
     for sketch_file in sketch_files:
