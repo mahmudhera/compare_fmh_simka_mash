@@ -162,3 +162,6 @@ def main():
             f.write(f'{pair[0]}\t{pair[1]}\t{metric}\n')
                 
     print('Done')
+
+if __name__ == '__main__':
+    main()
