@@ -26,7 +26,7 @@ import os
 import subprocess
 import multiprocessing
 
-from read_fmh_sketch import read_fmh_sketch
+from read_fmh_sketch import read_fmh_sig_file
 
 
 def parse_arguments():
@@ -143,7 +143,7 @@ def main():
     # read in all signatures
     filename_to_sig_dict = {}
     for sketch_file in sketch_files:
-        sigs = read_fmh_sketch(sketch_file, args.ksize, args.seed, args.scale_factor)
+        sigs = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
         filename_to_sig_dict[sketch_file] = sigs
 
     # compute pairwise metrics
