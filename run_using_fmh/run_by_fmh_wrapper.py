@@ -108,7 +108,7 @@ def count_num_common(list1, list2):
     return count
 
 
-def compute_metric_for_a_pair(sig1, sig2, metric):
+def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
     if metric == 'cosine':
         # compute the dot product
         dot_product = count_num_common(sig1, sig2)
@@ -118,7 +118,10 @@ def compute_metric_for_a_pair(sig1, sig2, metric):
         magnitude2 = len(sig2)
         
         # compute the cosine similarity
-        return dot_product / (magnitude1**0.5 * magnitude2**0.5)
+        return_value =  dot_product / (magnitude1**0.5 * magnitude2**0.5)
+        return_list[index] = return_value
+    else:
+        return_list[index] = -1
 
 
 def main():
@@ -134,11 +137,20 @@ def main():
     
     # generate sketches
     sketch_files = []
+    process_list = []
     for file in input_files:
         # sketch filename format: <input_filename>_ksize_scaled_seed.sig
         sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, file.endswith('.fa') or file.endswith('.fasta'), args.seed)
         sketch_files.append(sketch_filename)
+
+        # start a thread to generate the sketch
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, file.endswith('.fa') or file.endswith('.fasta'), args.seed))
+        p.start()
+        process_list.append(p)
+
+    # wait for all the processes to finish
+    for p in process_list:
+        p.join()
 
     # read in all signatures
     filename_to_sig_dict = {}
@@ -149,14 +161,33 @@ def main():
     # compute pairwise metrics
     pair_to_metric_dict = {}
     print('Computing pairwise metrics')
+    process_list = []
+    num_files = len(input_files)
+    num_pairs = num_files * (num_files - 1) // 2
+    return_list = multiprocessing.Manager().list([-1] * num_pairs)
+    index = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
             sketch1_filename = input_files[i] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
             sketch2_filename = input_files[j] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
             sig1 = filename_to_sig_dict[sketch1_filename]
             sig2 = filename_to_sig_dict[sketch2_filename]
-            metric = compute_metric_for_a_pair(sig1, sig2, args.metric)
-            pair_to_metric_dict[(input_files[i], input_files[j])] = metric
+
+            p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sig1, sig2, args.metric, return_list, index))
+            index += 1
+            p.start()
+            process_list.append(p)
+
+    # wait for all the processes to finish
+    for p in process_list:
+        p.join()
+
+    # extract the values from the return_list
+    index = 0
+    for i in range(len(input_files)):
+        for j in range(i+1, len(input_files)):
+            pair_to_metric_dict[(input_files[i], input_files[j])] = return_list[index]
+            index += 1
 
     # write the output to a file
     with open(args.output_file, 'w') as f:
