@@ -5,6 +5,7 @@ This script reads a FracMinHash sketch file
 import os
 import json
 import argparse
+import numpy as np
 
 """
 The current version assumes noabund
@@ -12,7 +13,9 @@ TODO: Add support for abund
 """
 def read_fmh_sig_file(file, ksize, seed, scaled):
     # compute the correct max_hash
-    target_max_hash = round((2**64 - 1) / scaled)
+    theoretical_max_hash = np.longdouble(2**64 - 1)
+    divide_by = np.longdouble(scaled)
+    target_max_hash = round( theoretical_max_hash / divide_by)
 
     # first check that the input file exists
     if not os.path.exists(file):
