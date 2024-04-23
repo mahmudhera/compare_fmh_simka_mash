@@ -65,13 +65,16 @@ def check_num_cores(cores):
         raise ValueError(f'Machine does not have enough cores. Number of cores requested: {cores}, Number of cores available: {num_cores}')
 
 
-def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta, seed=42):
+def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta, seed=42, use_abund=False):
     # use the proper command
     # command: fracKmcSketch <input_filename> <sketch_filename> --ksize <ksize> --scaled <scaled> --seed 42 --fa/--fq
     if is_fasta:
         cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed {seed} --fa'
     else:
         cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed {seed} --fq'
+
+    if use_abund:
+        cmd += ' --a'
 
     # run the command and check for errors
     try:
@@ -145,6 +148,11 @@ def compute_magnitute(sig):
 def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
     # sig1 and sig2: list of tuples (min, abundance)
     if metric == 'cosine':
+        # if either of the signatures is empty, return 0.0
+        if len(sig1) == 0 or len(sig2) == 0:
+            return_list[index] = 0.0
+            return
+
         # compute the dot product
         dot_product = get_dot_product(sig1, sig2)
         
