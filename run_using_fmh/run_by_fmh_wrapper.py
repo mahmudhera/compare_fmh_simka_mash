@@ -25,6 +25,7 @@ import argparse
 import os
 import subprocess
 import multiprocessing
+import time
 
 from read_fmh_sketch import read_fmh_sig_file
 
@@ -189,6 +190,10 @@ def main():
         is_fasta = file.endswith('.fa') or file.endswith('.fasta')
         generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.seed)
 
+
+    # measure time for rest of the code
+    start_time = time.time()
+
     # TODO: make this part parallel
     # read in all signatures
     filename_to_sig_dict = {}
@@ -233,6 +238,9 @@ def main():
             f.write(f'{pair[0]}\t{pair[1]}\t{metric}\n')
                 
     print('Done')
+
+    # print the time taken
+    print('Time taken:', time.time() - start_time)
 
 if __name__ == '__main__':
     main()
