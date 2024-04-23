@@ -249,3 +249,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+# sample: python ../../run_using_fmh/run_by_fmh_wrapper.py -i filelist_testrun_fmh -k 21 -s 1000 -m cosine -c 128 -o temp
