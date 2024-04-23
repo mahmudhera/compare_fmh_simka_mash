@@ -32,7 +32,7 @@ class TestReadFmhSigFile(unittest.TestCase):
         sigs1 = read_fmh_sig_file(existing_file1, 21, 42, 1000)
         sigs2 = read_fmh_sig_file(existing_file2, 21, 42, 1000)
 
-        self.assertEqual(sigs1, sigs2)
+        self.assertEqual(list(sigs1), list(sigs2))
 
 
 
