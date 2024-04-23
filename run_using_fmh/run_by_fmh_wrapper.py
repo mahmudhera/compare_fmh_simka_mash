@@ -108,17 +108,52 @@ def count_num_common(list1, list2):
     return count
 
 
+"""
+sig1 and sig2 are lists of tuples (min, abundance)
+This function gets the dot product of the two sigs
+The sigs are already sorted by min
+"""
+def get_dot_product(sig1, sig2):
+    if len(sig1) == 0 or len(sig2) == 0:
+        return 0
+    
+    i = 0
+    j = 0
+    dot_product = 0
+
+    while i < len(sig1) and j < len(sig2):
+        if sig1[i][0] == sig2[j][0]:
+            dot_product += sig1[i][1] * sig2[j][1]
+            i += 1
+            j += 1
+        elif sig1[i][0] < sig2[j][0]:
+            i += 1
+        else:
+            j += 1
+
+    return dot_product
+
+"""
+sig is a list of tuples (min, abundance)
+This function computes the magnitude of the signature vector
+"""
+def compute_magnitute(sig):
+    abundances_list = [abundance for min, abundance in sig]
+    return sum([abundance**2 for abundance in abundances_list])**0.5
+
+
 def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
+    # sig1 and sig2: list of tuples (min, abundance)
     if metric == 'cosine':
         # compute the dot product
-        dot_product = count_num_common(sig1, sig2)
+        dot_product = get_dot_product(sig1, sig2)
         
         # compute the magnitudes
-        magnitude1 = len(sig1)
-        magnitude2 = len(sig2)
+        magnitude1 = compute_magnitute(sig1)
+        magnitude2 = compute_magnitute(sig2)
         
         # compute the cosine similarity
-        return_value =  dot_product / (magnitude1**0.5 * magnitude2**0.5)
+        return_value =  dot_product / (magnitude1 * magnitude2)
         return_list[index] = return_value
     else:
         return_list[index] = -1
@@ -150,8 +185,8 @@ def main():
     # read in all signatures
     filename_to_sig_dict = {}
     for sketch_file in sketch_files:
-        sigs = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
-        filename_to_sig_dict[sketch_file] = sigs
+        sigs_and_abundances = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
+        filename_to_sig_dict[sketch_file] = sigs_and_abundances
 
     # compute pairwise metrics
     pair_to_metric_dict = {}
@@ -165,10 +200,10 @@ def main():
         for j in range(i+1, len(input_files)):
             sketch1_filename = input_files[i] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
             sketch2_filename = input_files[j] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sig1 = filename_to_sig_dict[sketch1_filename]
-            sig2 = filename_to_sig_dict[sketch2_filename]
+            sigs_and_abundances1 = filename_to_sig_dict[sketch1_filename]
+            sigs_and_abundances2 = filename_to_sig_dict[sketch2_filename]
 
-            p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sig1, sig2, args.metric, return_list, index))
+            p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
             index += 1
             p.start()
             process_list.append(p)

@@ -62,7 +62,11 @@ def read_fmh_sig_file(file, ksize, seed, scaled):
 
         # if this signature is the correct ksize, and correct seed, and correct max_hash, return the mins
         if sig['ksize'] == ksize and sig['seed'] == seed and sig['max_hash'] == target_max_hash:
-            return sig['mins']
+            # if "abundances" is present, extract the abundances
+            if 'abundances' in sig:
+                return zip(sig['mins'], sig['abundances'])
+            else:
+                return zip(sig['mins'], [1.0] * len(sig['mins']))
         
     # if we reach this point, we did not find the correct signature
     raise ValueError(f'Could not find the signature with ksize={ksize}, seed={seed}, and max_hash={target_max_hash}')
