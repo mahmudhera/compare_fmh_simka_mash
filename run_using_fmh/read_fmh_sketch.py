@@ -23,7 +23,9 @@ def read_fmh_sig_file(file, ksize, seed, scaled):
 
     # read the file as json
     try:
-        json_data = json.load(open(file, 'r'))
+        f = open(file, 'r')
+        json_data = json.load(f)
+        f.close()
     except json.JSONDecodeError as e:
         raise Exception(f'Error while reading the file {file}: {e}')
     
