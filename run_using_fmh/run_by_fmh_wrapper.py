@@ -242,5 +242,10 @@ def main():
     # print the time taken
     print('Time taken:', time.time() - start_time)
 
+    # create a new file with the sketch files as the filelist
+    with open('sketch_files.txt', 'w') as f:
+        for file in sketch_files:
+            f.write(file + '\n')
+
 if __name__ == '__main__':
     main()
