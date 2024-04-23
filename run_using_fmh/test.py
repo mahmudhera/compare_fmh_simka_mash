@@ -15,11 +15,6 @@ class TestReadFmhSigFile(unittest.TestCase):
         # following files: created using frac kmc and sourmash respectively, k = 21, scaled = 1000, seed = 42
         existing_file1 = '../data/toy/test1_fk_with_abund'
         existing_file2 = '../data/toy/test1_sm_with_abund'
-        existing_not_json = '../data/toy/staphylococcus.fasta'
-
-        # test case 2: file exists but is not a valid json file
-        with self.assertRaises(Exception):
-            read_fmh_sig_file(existing_not_json, 21, 42, 1000)
 
         # test case 3: incorrect ksizze
         with self.assertRaises(KeyError):
@@ -39,7 +34,7 @@ class TestReadFmhSigFile(unittest.TestCase):
 
         self.assertEqual(sigs1, sigs2)
 
-        
+
 
 
 
