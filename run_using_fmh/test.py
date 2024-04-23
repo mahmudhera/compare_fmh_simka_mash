@@ -17,15 +17,15 @@ class TestReadFmhSigFile(unittest.TestCase):
         existing_file2 = '../data/toy/test1_sm_with_abund'
 
         # test case 3: incorrect ksizze
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ValueError):
             read_fmh_sig_file(existing_file1, 20, 42, 1000)
 
         # test case 4: incorrect seed
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ValueError):
             read_fmh_sig_file(existing_file1, 21, 43, 1000)
 
         # test case 5: incorrect max_hash
-        with self.assertRaises(KeyError):
+        with self.assertRaises(ValueError):
             read_fmh_sig_file(existing_file1, 21, 42, 1001)
 
         # test case 6: existing file1 and file2 should have the same mins
