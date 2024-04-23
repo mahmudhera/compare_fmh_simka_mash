@@ -34,7 +34,14 @@ class TestReadFmhSigFile(unittest.TestCase):
 
         self.assertEqual(list(sigs1), list(sigs2))
 
+        # test case 7: repeat test case 6 with no abund file
+        existing_file1 = '../data/toy/test2_fk_no_abund'
+        existing_file2 = '../data/toy/test2_sm_no_abund'
 
+        sigs1 = read_fmh_sig_file(existing_file1, 21, 42, 1000)
+        sigs2 = read_fmh_sig_file(existing_file2, 21, 42, 1000)
+
+        self.assertEqual(list(sigs1), list(sigs2))
 
 
 
