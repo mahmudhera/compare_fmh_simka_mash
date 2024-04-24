@@ -79,6 +79,9 @@ def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta, num_co
     if use_abund:
         cmd += ' --a'
 
+    # show the command
+    print(cmd)
+
     # run the command and check for errors
     try:
         subprocess.run(cmd, shell=True, check=True)
