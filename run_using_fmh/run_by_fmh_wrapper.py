@@ -193,7 +193,7 @@ def main():
 
         # generate the sketch
         is_fasta = file.endswith('.fa') or file.endswith('.fasta')
-        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, args.cores, is_fasta, args.seed)
+        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
 
 
     # measure time for rest of the code
