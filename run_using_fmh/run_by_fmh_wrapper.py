@@ -66,13 +66,15 @@ def check_num_cores(cores):
         raise ValueError(f'Machine does not have enough cores. Number of cores requested: {cores}, Number of cores available: {num_cores}')
 
 
-def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta, seed=42, use_abund=False):
+def generate_fmh_sketch(file, scale_factor, ksize, output_file, is_fasta, num_cores, seed=42, use_abund=False):
     # use the proper command
     # command: fracKmcSketch <input_filename> <sketch_filename> --ksize <ksize> --scaled <scaled> --seed 42 --fa/--fq
     if is_fasta:
         cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed {seed} --fa'
     else:
         cmd = f'fracKmcSketch {file} {output_file} --ksize {ksize} --scaled {scale_factor} --seed {seed} --fq'
+
+    cmd += ' --t ' + str(num_cores)
 
     if use_abund:
         cmd += ' --a'
@@ -188,7 +190,7 @@ def main():
 
         # generate the sketch
         is_fasta = file.endswith('.fa') or file.endswith('.fasta')
-        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.seed)
+        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, args.cores, is_fasta, args.seed)
 
 
     # measure time for rest of the code
