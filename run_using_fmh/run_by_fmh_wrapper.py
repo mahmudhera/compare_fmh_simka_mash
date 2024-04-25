@@ -208,13 +208,14 @@ def main():
         
         #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
         # make this call using multiprocessing
-        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed))
-        p.start()
-        
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed))        
         num_processes_to_call_join += 1
         processes_to_call_join.append(p)
 
         if num_processes_to_call_join == num_processes_in_parallel:
+            for p in processes_to_call_join:
+                p.start()
+
             for p in processes_to_call_join:
                 p.join()
             num_processes_to_call_join = 0
