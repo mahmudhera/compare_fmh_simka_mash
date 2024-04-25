@@ -36,53 +36,58 @@ def main(pid_to_monitor, output_file):
 
     walltime_start = time.time()
 
-    while process_to_monitor.is_running():
-        time.sleep(0.1)
+    try:
 
-        # first check if the process is still running
-        if not process_to_monitor.is_running():
-            break
+        while process_to_monitor.is_running():
+            time.sleep(0.1)
 
-        # get list of processes    
-        processes = get_list_of_processes()
+            # first check if the process is still running
+            if not process_to_monitor.is_running():
+                break
 
-        # turn iterator into list
-        processes = list(processes)
-        processes_to_benchmark = []
+            # get list of processes    
+            processes = get_list_of_processes()
 
-        for process in processes:
-            # get creation time of process
-            creation_time = float(process.create_time())
+            # turn iterator into list
+            processes = list(processes)
+            processes_to_benchmark = []
 
-            if creation_time >= create_time_of_process_to_monitor and process.username() == user_name and process.pid != pid_this_proess:
-                processes_to_benchmark.append(process)
+            for process in processes:
+                # get creation time of process
+                creation_time = float(process.create_time())
 
-            if process.name == 'python':
-                print(process)
+                if creation_time >= create_time_of_process_to_monitor and process.username() == user_name and process.pid != pid_this_proess:
+                    processes_to_benchmark.append(process)
 
-        current_recorded_memory = 0.0
-        current_recorded_cpu_percentage = 0.0
-        for process in processes_to_benchmark:
-            current_recorded_memory += process.memory_info().rss
-            current_recorded_cpu_percentage += process.cpu_percent()
+                if process.name == 'python':
+                    print(process)
 
-        delta_time = time.time() - last_time_monitored
-        peak_memory = max(peak_memory, current_recorded_memory)
-        total_cpu_time += current_recorded_cpu_percentage * delta_time / 100.0
+            current_recorded_memory = 0.0
+            current_recorded_cpu_percentage = 0.0
+            for process in processes_to_benchmark:
+                current_recorded_memory += process.memory_info().rss
+                current_recorded_cpu_percentage += process.cpu_percent()
 
-        #print(current_recorded_cpu_percentage)
+            delta_time = time.time() - last_time_monitored
+            peak_memory = max(peak_memory, current_recorded_memory)
+            total_cpu_time += current_recorded_cpu_percentage * delta_time / 100.0
 
-        #print(process_to_monitor, delta_time, current_recorded_cpu_percentage, total_cpu_time)
-        # show how many processes are being monitored
-        print(f"Monitoring {len(processes_to_benchmark)} processes")
+            #print(current_recorded_cpu_percentage)
 
-        # show running process names in a single line
-        print("Running processes:", end=' ')
-        for process in processes_to_benchmark:
-            print(process.name(), end=' ')
-        print()
+            #print(process_to_monitor, delta_time, current_recorded_cpu_percentage, total_cpu_time)
+            # show how many processes are being monitored
+            print(f"Monitoring {len(processes_to_benchmark)} processes")
 
-        last_time_monitored = time.time()
+            # show running process names in a single line
+            print("Running processes:", end=' ')
+            for process in processes_to_benchmark:
+                print(process.name(), end=' ')
+            print()
+
+            last_time_monitored = time.time()
+    
+    except psutil.NoSuchProcess:
+        pass
 
     walltime_end = time.time()
 
