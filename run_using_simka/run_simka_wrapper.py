@@ -24,6 +24,10 @@ def check_input_files_exist(input_file):
     # next, check that all the files in the input file exist
     with open(input_file, 'r') as f:
         for line in f:
+            if line == '\n':
+                continue
+            if line.strip() == '':
+                continue
             if not os.path.exists(line.strip()):
                 raise FileNotFoundError(f'File {line.strip()} does not exist')
             
