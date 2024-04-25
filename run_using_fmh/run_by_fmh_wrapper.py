@@ -40,7 +40,9 @@ def parse_arguments():
     parser.add_argument('-o', '--output_file', type=str, help='Output file name')
     # add seed as an argument
     parser.add_argument('-S', '--seed', type=int, help='Seed', default=42)
-    parser.add_argument('-p', '--parallelize', type=bool, help='Whether to parallelize', default=True)
+    #add argument about whether to parallelize or not
+    parser.add_argument('-p', '--parallelize', action='store_true', help='Whether to parallelize or not')
+    
     args = parser.parse_args()
     return args
 
@@ -183,10 +185,13 @@ def main():
     input_files = []
     with open(args.input_file, 'r') as f:
         for line in f:
+            if line.strip() == '':
+                continue
+
             input_files.append(line.strip())
     
     # see if more than 4 threads are available
-    if args.cores > 4 and args.parallelize:
+    if args.cores > 4 and args.parallelize and len(input_files) >= 4:
         cores_each_instance = args.cores // 4
         num_processes_in_parallel = 4
     else:
