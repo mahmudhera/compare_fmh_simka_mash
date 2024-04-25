@@ -32,7 +32,7 @@ def main(file_to_monitor, output_file):
         if os.path.exists(file_to_monitor):
             break
 
-        time.sleep(0.1)
+        time.sleep(0.03)
 
         try:
             # get list of processes    
