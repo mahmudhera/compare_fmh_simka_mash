@@ -67,7 +67,7 @@ def start_monitor(resource_filename):
     script_dir = os.path.dirname(os.path.realpath(__file__))
 
     # generate the monitoring script path: script_dir/monitor.sh
-    monitoring_script_path = os.path.join(script_dir, 'monitor.sh')
+    monitoring_script_path = os.path.join(script_dir, 'monitor.py')
 
     os.system(f"python {monitoring_script_path} {pid} {resource_filename}&")
 
