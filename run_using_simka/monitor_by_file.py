@@ -27,15 +27,10 @@ def main(file_to_monitor, output_file):
 
     walltime_start = time.time()
 
-    # monitor until the file gets created, simka merge has been found, and no processes to monitor
-    simka_merge_found = False
-    no_processes_to_monitor = False
-    
+    # monitor until the file gets created
     while True:
         if os.path.exists(file_to_monitor):
-            if simka_merge_found:
-                if no_processes_to_monitor:
-                    break
+            break
 
         time.sleep(0.1)
 
@@ -51,13 +46,6 @@ def main(file_to_monitor, output_file):
                 # if simka is in the name of the process, track it
                 if 'simka' in str(process.name()).lower():
                     processes_to_benchmark.append(process)
-                if 'simkamerge' in str(process.name()).lower():
-                    simka_merge_found = True
-
-            if len(processes_to_benchmark) == 0:
-                no_processes_to_monitor = True
-            else:
-                no_processes_to_monitor = False
 
             current_recorded_memory = 0.0
             current_recorded_cpu_percentage = 0.0
