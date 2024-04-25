@@ -1,0 +1,4 @@
+/scratch/mbr5797/run_camisim/run_simulations/vary_sizes/metagenomes/metagenome_0.8_seed_2.fastq_21_1000_42.sig
+/scratch/mbr5797/run_camisim/run_simulations/vary_sizes/metagenomes/metagenome_0.8_seed_3.fastq_21_1000_42.sig
+/scratch/mbr5797/run_camisim/run_simulations/vary_sizes/metagenomes/metagenome_0.8_seed_4.fastq_21_1000_42.sig
+/scratch/mbr5797/run_camisim/run_simulations/vary_sizes/metagenomes/metagenome_0.8_seed_5.fastq_21_1000_42.sig
