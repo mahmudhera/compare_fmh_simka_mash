@@ -42,6 +42,13 @@ def parse_arguments():
     parser.add_argument('-S', '--seed', type=int, help='Seed', default=42)
     #add argument about whether to parallelize or not
     parser.add_argument('-p', '--parallelize', action='store_true', help='Whether to parallelize or not')
+
+    # add two more arguments: how many cores to use for each instance, and how many instances to run in parallel
+    parser.add_argument('-C', '--cores_each_instance', type=int, help='Number of cores to use for each instance', default=128)
+    parser.add_argument('-P', '--num_instances_parallel', type=int, help='Number of instances to run in parallel', default=1)
+
+    # add argument to use abundances
+    parser.add_argument('-a', '--use_abund', action='store_true', help='Use abundances')
     
     args = parser.parse_args()
     return args
@@ -191,9 +198,9 @@ def main():
             input_files.append(line.strip())
     
     # see if more than 4 threads are available
-    if args.cores > 4 and args.parallelize and len(input_files) >= 4:
-        cores_each_instance = args.cores // 4
-        num_processes_in_parallel = 4
+    if args.parallelize:
+        cores_each_instance = args.cores_each_instance
+        num_processes_in_parallel = args.num_instances_parallel
     else:
         cores_each_instance = args.cores
         num_processes_in_parallel = 1
@@ -213,7 +220,7 @@ def main():
         
         #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
         # make this call using multiprocessing
-        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed))        
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed, args.use_abund))        
         num_processes_to_call_join += 1
         processes_to_call_join.append(p)
 
