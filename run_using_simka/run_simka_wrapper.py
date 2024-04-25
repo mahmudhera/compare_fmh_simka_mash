@@ -66,24 +66,25 @@ def run_simka(input_file, ksize, output_directory, temp_dir_name = './simka_temp
 
 
 
-def start_monitor(resource_filename):
+def start_monitor(simka_output_directory, resource_filename):
     # start monitoring the processes
-    pid = os.getpid()
+    required_filename = 'mat_abundance_jaccard.csv.gz'
+    required_file_path = os.path.join(simka_output_directory, required_filename)
 
     # find the directory in which this running script is present
     script_dir = os.path.dirname(os.path.realpath(__file__))
 
     # generate the monitoring script path: script_dir/monitor.sh
-    monitoring_script_path = os.path.join(script_dir, 'monitor.py')
+    monitoring_script_path = os.path.join(script_dir, 'monitor_by_file.py')
 
-    os.system(f"python {monitoring_script_path} {pid} {resource_filename}&")
+    os.system(f"python {monitoring_script_path} {required_file_path} {resource_filename}&")
 
 
 
 def main():
     args = parse_arguments()
     check_input_files_exist(args.input_file)
-    start_monitor(args.resources)
+    start_monitor(args.output_directory, args.resources)
     run_simka(args.input_file, args.ksize, args.output_directory)
 
 

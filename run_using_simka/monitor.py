@@ -89,10 +89,17 @@ def main(pid_to_monitor, output_file):
     except psutil.NoSuchProcess:
         pass
 
-    # continue monitoring as long as a process named 'simkaMerge' is running
+    # continue monitoring as long as a process named 'simkaMerge' is running, or 
+    # until 10 seconds have elapsed
+    simkamerge_found = False
+    counter = 0
     try:
         while True:
             time.sleep(0.1)
+
+            counter += 1
+            if counter > 100 and not simkamerge_found:
+                break
 
             # get list of processes
             processes = get_list_of_processes()
@@ -101,15 +108,19 @@ def main(pid_to_monitor, output_file):
             processes = list(processes)
             processes_to_benchmark = []
 
-            for process in processes:
-                # get creation time of process
-                creation_time = float(process.create_time())
+            try:
+                for process in processes:
+                    # get creation time of process
+                    creation_time = float(process.create_time())
 
-                if creation_time >= create_time_of_process_to_monitor and process.username() == user_name and process.pid != pid_this_proess:
-                    if process.name() == 'simkaMerge':
-                        processes_to_benchmark.append(process)
+                    if creation_time >= create_time_of_process_to_monitor and process.username() == user_name and process.pid != pid_this_proess:
+                        if 'simkamerge' in str(process.name()).lower():
+                            simkamerge_found = True
+                            processes_to_benchmark.append(process)
+            except psutil.NoSuchProcess:
+                continue
 
-            if len(processes_to_benchmark) == 0:
+            if len(processes_to_benchmark) == 0 and simkamerge_found:
                 break
 
             current_recorded_memory = 0.0
@@ -136,7 +147,7 @@ def main(pid_to_monitor, output_file):
     except psutil.NoSuchProcess:
         pass
 
-    # our wrapper exited, and no simkaMerge is hanging around, so end
+    # our wrapper exited, and no simkaMerge is hanging around
         
 
     walltime_end = time.time()
