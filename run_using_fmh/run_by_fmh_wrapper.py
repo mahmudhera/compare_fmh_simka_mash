@@ -184,8 +184,19 @@ def main():
         for line in f:
             input_files.append(line.strip())
     
+    # see if more than 4 threads are available
+    if args.cores > 4:
+        cores_each_instance = args.cores // 4
+        num_processes_in_parallel = 4
+    else:
+        cores_each_instance = args.cores
+        num_processes_in_parallel = 1
+
+
     # generate sketches
     sketch_files = []
+    num_processes_to_call_join = 0
+    processes_to_call_join = []
     for file in input_files:
         # sketch filename format: <input_filename>_ksize_scaled_seed.sig
         sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
@@ -193,7 +204,20 @@ def main():
 
         # generate the sketch
         is_fasta = file.endswith('.fa') or file.endswith('.fasta')
-        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
+        
+        #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
+        # make this call using multiprocessing
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed))
+        p.start()
+        
+        num_processes_to_call_join += 1
+        processes_to_call_join.append(p)
+
+        if num_processes_to_call_join == num_processes_in_parallel:
+            for p in processes_to_call_join:
+                p.join()
+            num_processes_to_call_join = 0
+            processes_to_call_join = []
 
 
     # measure time for rest of the code
@@ -245,7 +269,7 @@ def main():
     print('Done')
 
     # print the time taken
-    print('Time taken:', time.time() - start_time)
+    print('Time taken only for similarity calculation:', time.time() - start_time)
 
     # create a new file with the sketch files as the filelist
     with open('sketch_files.txt', 'w') as f:
