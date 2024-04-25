@@ -55,7 +55,7 @@ def run_simka(input_file, ksize, output_directory, temp_dir_name = './simka_temp
     simka_filelist = create_filelist_for_simka(input_file)
 
     # run simka
-    os.system(f'simka -in {simka_filelist} -k {ksize} -out {output_directory} -out-tmp {temp_dir_name}')
+    os.system(f'simka -in {simka_filelist} -kmer-size {ksize} -out {output_directory} -out-tmp {temp_dir_name}')
 
 
 
