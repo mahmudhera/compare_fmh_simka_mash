@@ -38,6 +38,11 @@ def main(pid_to_monitor, output_file):
 
     while process_to_monitor.is_running():
         time.sleep(0.1)
+
+        # first check if the process is still running
+        if not process_to_monitor.is_running():
+            break
+
         # get list of processes    
         processes = get_list_of_processes()
 
@@ -65,11 +70,17 @@ def main(pid_to_monitor, output_file):
         peak_memory = max(peak_memory, current_recorded_memory)
         total_cpu_time += current_recorded_cpu_percentage * delta_time / 100.0
 
-        print(current_recorded_cpu_percentage)
+        #print(current_recorded_cpu_percentage)
 
         #print(process_to_monitor, delta_time, current_recorded_cpu_percentage, total_cpu_time)
         # show how many processes are being monitored
         print(f"Monitoring {len(processes_to_benchmark)} processes")
+
+        # show running process names in a single line
+        print("Running processes:", end=' ')
+        for process in processes_to_benchmark:
+            print(process.name(), end=' ')
+        print()
 
         last_time_monitored = time.time()
 
