@@ -92,6 +92,11 @@ def main(pid_to_monitor, output_file):
         f.write(f'Total CPU time (seconds): {total_cpu_time}\n')
         f.write(f'Walltime (seconds): {walltime_end - walltime_start}\n')
 
+    print('**********************************')
+    print('EXITING MONITOR SCRIPT')
+    print('**********************************')
+
+
 
 if __name__ == "__main__":
     # the first command line argument is the pid of the process to monitor
