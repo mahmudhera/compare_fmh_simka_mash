@@ -44,6 +44,11 @@ def create_filelist_for_simka(input_file):
     simka_filelist = f'{input_file}_for_simka'
     with open(input_file, 'r') as f, open(simka_filelist, 'w') as out:
         for line in f:
+            if line == '\n':
+                continue
+            if line.strip() == '':
+                continue
+            
             file_path = line.strip()
             sample_name = os.path.basename(file_path)
             out.write(f'{sample_name}: {file_path}\n')
