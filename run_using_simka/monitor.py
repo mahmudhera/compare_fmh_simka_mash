@@ -89,6 +89,52 @@ def main(pid_to_monitor, output_file):
     except psutil.NoSuchProcess:
         pass
 
+    # continue monitoring as long as a process named 'simkaMerge' is running
+    while True:
+        time.sleep(0.1)
+
+        # get list of processes
+        processes = get_list_of_processes()
+
+        # turn iterator into list
+        processes = list(processes)
+        processes_to_benchmark = []
+
+        for process in processes:
+            # get creation time of process
+            creation_time = float(process.create_time())
+
+            if creation_time >= create_time_of_process_to_monitor and process.username() == user_name and process.pid != pid_this_proess:
+                if process.name() == 'simkaMerge':
+                    processes_to_benchmark.append(process)
+
+        if len(processes_to_benchmark) == 0:
+            break
+
+        current_recorded_memory = 0.0
+        current_recorded_cpu_percentage = 0.0
+        for process in processes_to_benchmark:
+            current_recorded_memory += process.memory_info().rss
+            current_recorded_cpu_percentage += process.cpu_percent()
+
+        delta_time = time.time() - last_time_monitored
+        peak_memory = max(peak_memory, current_recorded_memory)
+        total_cpu_time += current_recorded_cpu_percentage * delta_time / 100.0
+
+        # show how many processes are being monitored
+        print(f"Monitoring {len(processes_to_benchmark)} processes")
+
+        # show running process names in a single line
+        print("Running processes:", end=' ')
+        for process in processes_to_benchmark:
+            print(process.name(), end=' ')
+        print()
+
+        last_time_monitored = time.time()
+
+    # our wrapper exited, and no simkaMerge is hanging around, so end
+        
+        
     walltime_end = time.time()
 
     # write the stats to the output file
