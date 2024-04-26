@@ -233,6 +233,10 @@ def main():
             num_processes_to_call_join = 0
             processes_to_call_join = []
 
+    # join the remaining processes
+    for p in processes_to_call_join:
+        p.start()
+
 
     # measure time for rest of the code
     start_time = time.time()
