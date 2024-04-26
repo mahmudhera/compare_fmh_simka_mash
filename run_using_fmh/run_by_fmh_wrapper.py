@@ -49,6 +49,9 @@ def parse_arguments():
 
     # add argument to use abundances
     parser.add_argument('-a', '--use_abund', action='store_true', help='Use abundances')
+
+    # whether to sketch only (skip the metric computation)
+    parser.add_argument('-sketch_only', action='store_true', help='Only generate sketches')
     
     args = parser.parse_args()
     return args
@@ -236,6 +239,11 @@ def main():
     # join the remaining processes
     for p in processes_to_call_join:
         p.start()
+
+    # check if the user only wants to sketch
+    if args.sketch_only:
+        print('Done')
+        return
 
 
     # measure time for rest of the code
