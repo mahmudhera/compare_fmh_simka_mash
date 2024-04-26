@@ -293,10 +293,8 @@ def main():
     index = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
-            sketch1_filename = input_files[i] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sketch2_filename = input_files[j] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sigs_and_abundances1 = filename_to_sig_dict[sketch1_filename]
-            sigs_and_abundances2 = filename_to_sig_dict[sketch2_filename]
+            sigs_and_abundances1 = filename_to_sig_dict[input_files[i]]
+            sigs_and_abundances2 = filename_to_sig_dict[input_files[j]]
 
             p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
             index += 1
