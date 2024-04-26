@@ -12,16 +12,22 @@ def get_list_of_processes():
     return psutil.process_iter()
 
 def main(file_to_monitor, output_file):
-    # get user name
-    user_name = get_user_name()
-
-    # get start time of this process
-    pid_this_proess = os.getpid()
-    #pid_this_proess = -1
+    
+    print('**********************************')
+    print('STARTING MONITOR SCRIPT')
+    print('**********************************')
 
     # stats to record
-    peak_memory = 0.0
-    total_cpu_time = 0.0
+    peak_memory_stage1 = 0.0
+    total_cpu_time_stage1 = 0.0
+
+    peak_memory_stage2 = 0.0
+    total_cpu_time_stage2 = 0.0
+
+    stage1 = True
+    stage2 = False
+
+    time_to_sleep = 0.03
 
     last_time_monitored = time.time()
 
@@ -32,7 +38,7 @@ def main(file_to_monitor, output_file):
         if os.path.exists(file_to_monitor):
             break
 
-        time.sleep(0.03)
+        time.sleep(time_to_sleep)
 
         try:
             # get list of processes    
@@ -46,6 +52,11 @@ def main(file_to_monitor, output_file):
                 # if simka is in the name of the process, track it
                 if 'simka' in str(process.name()).lower():
                     processes_to_benchmark.append(process)
+                if 'simkamerge' in str(process.name()).lower():
+                    stage1 = False
+                    stage2 = True
+                    time_to_sleep = 0.01
+                    time_snapshot = time.time()
 
             current_recorded_memory = 0.0
             current_recorded_cpu_percentage = 0.0
@@ -54,8 +65,14 @@ def main(file_to_monitor, output_file):
                 current_recorded_cpu_percentage += process.cpu_percent()
 
             delta_time = time.time() - last_time_monitored
-            peak_memory = max(peak_memory, current_recorded_memory)
-            total_cpu_time += current_recorded_cpu_percentage * delta_time / 100.0
+
+            if stage1:
+                peak_memory_stage1 = max(peak_memory_stage1, current_recorded_memory)
+                total_cpu_time_stage1 += current_recorded_cpu_percentage * delta_time / 100.0
+
+            if stage2:
+                peak_memory_stage2 = max(peak_memory_stage2, current_recorded_memory)
+                total_cpu_time_stage2 += current_recorded_cpu_percentage * delta_time / 100.0
 
             # show how many processes are being monitored
             print(f"Monitoring {len(processes_to_benchmark)} processes")
@@ -76,9 +93,17 @@ def main(file_to_monitor, output_file):
 
     # write the stats to the output file
     with open(output_file, 'w') as f:
-        f.write(f'Peak memory usage (bytes): {peak_memory}\n')
-        f.write(f'Total CPU time (seconds): {total_cpu_time}\n')
-        f.write(f'Walltime (seconds): {walltime_end - walltime_start}\n')
+        f.write('Stage1:\n')
+        f.write(f'Peak memory usage (bytes): {peak_memory_stage1}\n')
+        f.write(f'Total CPU time (seconds): {total_cpu_time_stage1}\n')
+        f.write(f'Walltime (seconds): {time_snapshot - walltime_start}\n')
+        f.write('\n')
+
+        f.write('Stage2:\n')
+        f.write(f'Peak memory usage (bytes): {peak_memory_stage2}\n')
+        f.write(f'Total CPU time (seconds): {total_cpu_time_stage2}\n')
+        f.write(f'Walltime (seconds): {walltime_end - time_snapshot}\n')
+        f.write('\n')
 
     print('**********************************')
     print('EXITING MONITOR SCRIPT')
