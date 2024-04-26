@@ -219,37 +219,39 @@ def main():
         num_processes_in_parallel = 1
 
 
-    # generate sketches
-    if not args.skip_sketch:
-        sketch_files = []
-        num_processes_to_call_join = 0
-        processes_to_call_join = []
-        for file in input_files:
-            # sketch filename format: <input_filename>_ksize_scaled_seed.sig
-            sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sketch_files.append(sketch_filename)
+    sketch_files = []
+    num_processes_to_call_join = 0
+    processes_to_call_join = []
+    for file in input_files:
+        # sketch filename format: <input_filename>_ksize_scaled_seed.sig
+        sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
+        sketch_files.append(sketch_filename)
 
-            # generate the sketch
-            is_fasta = file.endswith('.fa') or file.endswith('.fasta')
-            
-            #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
-            # make this call using multiprocessing
-            p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed, args.use_abund))        
-            num_processes_to_call_join += 1
-            processes_to_call_join.append(p)
+        # if the user wants to skip sketch creation, continue
+        if args.skip_sketch:
+            continue
 
-            if num_processes_to_call_join == num_processes_in_parallel:
-                for p in processes_to_call_join:
-                    p.start()
+        # generate the sketch
+        is_fasta = file.endswith('.fa') or file.endswith('.fasta')
+        
+        #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
+        # make this call using multiprocessing
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed, args.use_abund))        
+        num_processes_to_call_join += 1
+        processes_to_call_join.append(p)
 
-                for p in processes_to_call_join:
-                    p.join()
-                num_processes_to_call_join = 0
-                processes_to_call_join = []
+        if num_processes_to_call_join == num_processes_in_parallel:
+            for p in processes_to_call_join:
+                p.start()
 
-        # join the remaining processes
-        for p in processes_to_call_join:
-            p.start()
+            for p in processes_to_call_join:
+                p.join()
+            num_processes_to_call_join = 0
+            processes_to_call_join = []
+
+    # join the remaining processes
+    for p in processes_to_call_join:
+        p.start()
 
     # check if the user only wants to sketch
     if args.sketch_only:
