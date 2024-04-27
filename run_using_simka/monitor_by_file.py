@@ -53,10 +53,15 @@ def main(file_to_monitor, output_file):
                 if 'simka' in str(process.name()).lower():
                     processes_to_benchmark.append(process)
                 if 'simkamerge' in str(process.name()).lower():
-                    stage1 = False
-                    stage2 = True
-                    time_to_sleep = 0.01
-                    time_snapshot = time.time()
+                    if stage1:
+                        print('*****************************')
+                        print('Stage1 completed')
+                        print('*****************************')
+
+                        stage1 = False
+                        stage2 = True
+                        time_to_sleep = 0.01
+                        time_snapshot = time.time()
 
             current_recorded_memory = 0.0
             current_recorded_cpu_percentage = 0.0
@@ -75,13 +80,13 @@ def main(file_to_monitor, output_file):
                 total_cpu_time_stage2 += current_recorded_cpu_percentage * delta_time / 100.0
 
             # show how many processes are being monitored
-            print(f"Monitoring {len(processes_to_benchmark)} processes")
+            print(f"Monitoring {len(processes_to_benchmark)} processes\r", end="")
             
             # show running process names in a single line
-            print("Running processes:", end=' ')
-            for process in processes_to_benchmark:
-                print(process.name(), end=' ')
-            print()
+            #print("Running processes:", end=' ')
+            #for process in processes_to_benchmark:
+            #    print(process.name(), end=' ')
+            #print()
         
         except psutil.NoSuchProcess:
             continue
