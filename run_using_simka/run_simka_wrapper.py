@@ -13,6 +13,9 @@ def parse_arguments():
     parser.add_argument('-k', '--ksize', type=int, help='Kmer size', default=21)
     parser.add_argument('-o', '--output_directory', type=str, help='Output directory name')
     parser.add_argument('-r', '--resources', type=str, help='Resource file name', default='resources.txt')
+    parser.add_argument('-t', '--temp_dir_name', type=str, help='Temporary directory name', default='./simka_temp_dir')
+    # use argument for num threads
+    parser.add_argument('-n', '--num_threads', type=int, help='Number of threads to use in simkaMerge', default=1)
     args = parser.parse_args()
     return args
 
@@ -55,12 +58,12 @@ def create_filelist_for_simka(input_file):
 
     return simka_filelist
 
-def run_simka(input_file, ksize, output_directory, temp_dir_name = './simka_temp_dir'):
+def run_simka(input_file, ksize, output_directory, temp_dir_name = './simka_temp_dir', num_threads = 1):
     # create a filelist for simka
     simka_filelist = create_filelist_for_simka(input_file)
 
     # run simka
-    cmd = f'simka -in {simka_filelist} -kmer-size {ksize} -out {output_directory} -out-tmp {temp_dir_name} -max-merge 1'
+    cmd = f'simka -in {simka_filelist} -kmer-size {ksize} -out {output_directory} -out-tmp {temp_dir_name} -max-merge {num_threads}'
     print(cmd)
     os.system(cmd)
 
@@ -85,7 +88,7 @@ def main():
     args = parse_arguments()
     check_input_files_exist(args.input_file)
     start_monitor(args.output_directory, args.resources)
-    run_simka(args.input_file, args.ksize, args.output_directory)
+    run_simka(args.input_file, args.ksize, args.output_directory, args.temp_dir_name, args.num_threads)
 
 
 
