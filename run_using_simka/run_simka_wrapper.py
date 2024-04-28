@@ -12,7 +12,7 @@ def parse_arguments():
     parser.add_argument('-i', '--input_file', type=str, help='Path to file containing input files')
     parser.add_argument('-k', '--ksize', type=int, help='Kmer size', default=21)
     parser.add_argument('-o', '--output_directory', type=str, help='Output directory name')
-    parser.add_argument('-r', '--resources', type=str, help='Resource file name', default='None')
+    parser.add_argument('-r', '--resources', type=str, help='Resource file name', default=None)
     parser.add_argument('-t', '--temp_dir_name', type=str, help='Temporary directory name', default='./simka_temp_dir')
     # use argument for num threads
     parser.add_argument('-n', '--num_threads', type=int, help='Number of threads to use in simkaMerge', default=1)
