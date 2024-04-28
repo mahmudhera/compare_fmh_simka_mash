@@ -53,9 +53,6 @@ def main(file_to_monitor, output_file):
                 if 'simka' in str(process.name()).lower():
                     processes_to_benchmark.append(process)
 
-                if get_user_name() in process.username():
-                    processes_to_benchmark.append(process)
-
                 if 'simkamerge' in str(process.name()).lower():
                     if stage1:
                         print('*****************************')
