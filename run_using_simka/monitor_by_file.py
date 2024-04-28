@@ -84,13 +84,13 @@ def main(file_to_monitor, output_file):
                 total_cpu_time_stage2 += current_recorded_cpu_percentage * delta_time / 100.0
 
             # show how many processes are being monitored
-            print(f"Monitoring {len(processes_to_benchmark)} processes: {processes_to_benchmark[0].name()} .. {processes_to_benchmark[-1].name()}\r", end="")
+            print(f"Monitoring {len(processes_to_benchmark)} processes: {processes_to_benchmark[0].name()} .. {processes_to_benchmark[-1].name()}", end="\n")
             
             # show running process names in a single line
-            #print("Running processes:", end=' ')
-            #for process in processes_to_benchmark:
-            #    print(process.name(), end=' ')
-            #print()
+            print("Running processes:", end=' ')
+            for process in processes_to_benchmark:
+                print(process.name(), end=' ')
+            print()
         
         except psutil.NoSuchProcess:
             continue
