@@ -96,6 +96,9 @@ def main(file_to_monitor, output_file):
 
     walltime_end = time.time()
 
+    if stage1:
+        time_snapshot = walltime_end
+
     # write the stats to the output file
     with open(output_file, 'w') as f:
         f.write('Stage1:\n')
@@ -104,11 +107,12 @@ def main(file_to_monitor, output_file):
         f.write(f'Walltime (seconds): {time_snapshot - walltime_start}\n')
         f.write('\n')
 
-        f.write('Stage2:\n')
-        f.write(f'Peak memory usage (bytes): {peak_memory_stage2}\n')
-        f.write(f'Total CPU time (seconds): {total_cpu_time_stage2}\n')
-        f.write(f'Walltime (seconds): {walltime_end - time_snapshot}\n')
-        f.write('\n')
+        if stage2:
+            f.write('Stage2:\n')
+            f.write(f'Peak memory usage (bytes): {peak_memory_stage2}\n')
+            f.write(f'Total CPU time (seconds): {total_cpu_time_stage2}\n')
+            f.write(f'Walltime (seconds): {walltime_end - time_snapshot}\n')
+            f.write('\n')
 
     print('**********************************')
     print('EXITING MONITOR SCRIPT')
