@@ -30,6 +30,13 @@ import time
 from read_fmh_sketch import read_fmh_sig_file
 
 
+def read_fmh_sig_file_single_process(file, ksize, seed, scaled, index, return_list):
+    # call read_fmh_sig_file
+    # get the return value
+    # store in the return_list
+    return_list[index] = read_fmh_sig_file(file, ksize, seed, scaled)
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Run FMH to compute metrics on input files')
     parser.add_argument('-i', '--input_file', type=str, help='Path to file containing input files')
@@ -40,6 +47,22 @@ def parse_arguments():
     parser.add_argument('-o', '--output_file', type=str, help='Output file name')
     # add seed as an argument
     parser.add_argument('-S', '--seed', type=int, help='Seed', default=42)
+    #add argument about whether to parallelize or not
+    parser.add_argument('-p', '--parallelize', action='store_true', help='Whether to parallelize or not')
+
+    # add two more arguments: how many cores to use for each instance, and how many instances to run in parallel
+    parser.add_argument('-C', '--cores_each_instance', type=int, help='Number of cores to use for each instance', default=128)
+    parser.add_argument('-P', '--num_instances_parallel', type=int, help='Number of instances to run in parallel', default=1)
+
+    # add argument to use abundances
+    parser.add_argument('-a', '--use_abund', action='store_true', help='Use abundances')
+
+    # whether to sketch only (skip the metric computation)
+    parser.add_argument('-sketch_only', action='store_true', help='Only generate sketches')
+
+    # whether to skip sketch creation
+    parser.add_argument('-skip_sketch', action='store_true', help='Skip sketch creation')
+    
     args = parser.parse_args()
     return args
 
@@ -182,29 +205,83 @@ def main():
     input_files = []
     with open(args.input_file, 'r') as f:
         for line in f:
+            if line.strip() == '':
+                continue
+
             input_files.append(line.strip())
     
-    # generate sketches
+    # see if more than 4 threads are available
+    if args.parallelize:
+        cores_each_instance = args.cores_each_instance
+        num_processes_in_parallel = args.num_instances_parallel
+    else:
+        cores_each_instance = args.cores
+        num_processes_in_parallel = 1
+
+
     sketch_files = []
+    num_processes_to_call_join = 0
+    processes_to_call_join = []
     for file in input_files:
         # sketch filename format: <input_filename>_ksize_scaled_seed.sig
         sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
         sketch_files.append(sketch_filename)
 
+        # if the user wants to skip sketch creation, continue
+        if args.skip_sketch:
+            continue
+
         # generate the sketch
         is_fasta = file.endswith('.fa') or file.endswith('.fasta')
-        generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
+        
+        #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
+        # make this call using multiprocessing
+        p = multiprocessing.Process(target=generate_fmh_sketch, args=(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, cores_each_instance, args.seed, args.use_abund))        
+        num_processes_to_call_join += 1
+        processes_to_call_join.append(p)
+
+        if num_processes_to_call_join == num_processes_in_parallel:
+            for p in processes_to_call_join:
+                p.start()
+
+            for p in processes_to_call_join:
+                p.join()
+            num_processes_to_call_join = 0
+            processes_to_call_join = []
+
+    # join the remaining processes
+    for p in processes_to_call_join:
+        p.start()
+
+    # check if the user only wants to sketch
+    if args.sketch_only:
+        print('Done')
+        return
 
 
     # measure time for rest of the code
     start_time = time.time()
 
-    # TODO: make this part parallel
+    # TODO: make this part parallel using multiprocessing
     # read in all signatures
     filename_to_sig_dict = {}
+
+    index = 0
+    return_list = multiprocessing.Manager().list([-1] * len(input_files))
+    process_list = []
     for sketch_file in sketch_files:
-        sigs_and_abundances = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
-        filename_to_sig_dict[sketch_file] = sigs_and_abundances
+        p = multiprocessing.Process(target=read_fmh_sig_file_single_process, args=(sketch_file, args.ksize, args.seed, args.scale_factor, index, return_list))
+        index += 1
+        p.start()
+        process_list.append(p)
+
+    # wait for all the processes to finish
+    for p in process_list:
+        p.join()
+
+    # extract the values from the return_list
+    for i in range(len(input_files)):
+        filename_to_sig_dict[input_files[i]] = return_list[i]
 
     # compute pairwise metrics
     pair_to_metric_dict = {}
@@ -216,10 +293,8 @@ def main():
     index = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
-            sketch1_filename = input_files[i] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sketch2_filename = input_files[j] + f'_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
-            sigs_and_abundances1 = filename_to_sig_dict[sketch1_filename]
-            sigs_and_abundances2 = filename_to_sig_dict[sketch2_filename]
+            sigs_and_abundances1 = filename_to_sig_dict[input_files[i]]
+            sigs_and_abundances2 = filename_to_sig_dict[input_files[j]]
 
             p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
             index += 1
@@ -245,7 +320,7 @@ def main():
     print('Done')
 
     # print the time taken
-    print('Time taken:', time.time() - start_time)
+    print('Time taken only for similarity calculation:', time.time() - start_time)
 
     # create a new file with the sketch files as the filelist
     with open('sketch_files.txt', 'w') as f:
