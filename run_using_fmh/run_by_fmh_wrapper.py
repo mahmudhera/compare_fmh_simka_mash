@@ -232,7 +232,7 @@ def main():
             continue
 
         # generate the sketch
-        is_fasta = file.endswith('.fa') or file.endswith('.fasta')
+        is_fasta = file.endswith('.fa') or file.endswith('.fasta') or file.endswith('.fna')
         
         #generate_fmh_sketch(file, args.scale_factor, args.ksize, sketch_filename, is_fasta, args.cores, args.seed)
         # make this call using multiprocessing
