@@ -55,6 +55,7 @@ def read_simka_output(simka_output):
             filename2 = filename2.split("/")[-1]
             
             pair_to_chord[(filename1, filename2)] = df.iloc[i-1, j]
+            pair_to_chord[(filename2, filename1)] = df.iloc[i-1, j]
 
     return pair_to_chord
 
