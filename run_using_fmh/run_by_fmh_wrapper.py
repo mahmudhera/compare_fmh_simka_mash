@@ -222,10 +222,12 @@ def main():
     sketch_files = []
     num_processes_to_call_join = 0
     processes_to_call_join = []
+    filename_to_sketch_name = {}
     for file in input_files:
         # sketch filename format: <input_filename>_ksize_scaled_seed.sig
         sketch_filename = f'{file}_{args.ksize}_{args.scale_factor}_{args.seed}.sig'
         sketch_files.append(sketch_filename)
+        filename_to_sketch_name[file] = sketch_filename
 
         # if the user wants to skip sketch creation, continue
         if args.skip_sketch:
@@ -280,8 +282,8 @@ def main():
     index = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
-            sigs_and_abundances1 = filename_to_sig_dict[input_files[i]]
-            sigs_and_abundances2 = filename_to_sig_dict[input_files[j]]
+            sigs_and_abundances1 = filename_to_sig_dict[filename_to_sketch_name[input_files[i]]
+            sigs_and_abundances2 = filename_to_sig_dict[filename_to_sketch_name[input_files[j]]
 
             p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
             index += 1
