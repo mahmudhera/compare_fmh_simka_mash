@@ -43,7 +43,7 @@ def read_simka_output(simka_output):
     df = pd.read_csv(simka_output, sep=";")
 
     # get the first column as a list
-    filenames = df[0].tolist()
+    filenames = list(df.columns)
 
     # iterate over all pairs. The df is a square matrix. Header contains filenames
     pair_to_chord = {}
@@ -54,7 +54,7 @@ def read_simka_output(simka_output):
             filename2 = filenames[j]
             filename2 = filename2.split("/")[-1]
             
-            pair_to_chord[(filename1, filename2)] = df.loc[i, j]
+            pair_to_chord[(filename1, filename2)] = df.loc[i-1, j]
 
     return pair_to_chord
 
