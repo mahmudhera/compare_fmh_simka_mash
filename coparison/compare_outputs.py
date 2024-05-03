@@ -78,7 +78,7 @@ def compare_outputs(fmh_output, simka_output):
         chord_simka = pair_to_chord[pair]
         cosine_simka = chord_to_cosine(chord_simka)
 
-        print(f"{cosine_simka}, {cosine_fmh}, {cosine_simka - cosine_fmh}")
+        print(f"{pair}, {chord_simka}, {cosine_simka}, {cosine_fmh}, {cosine_simka - cosine_fmh}")
 
 
 if __name__ == "__main__":
