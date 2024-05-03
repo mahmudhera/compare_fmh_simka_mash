@@ -275,6 +275,11 @@ def main():
     # compute pairwise metrics
     pair_to_metric_dict = {}
     print('Computing pairwise metrics')
+    process_list = []
+    num_files = len(input_files)
+    num_pairs = num_files * (num_files - 1) // 2
+    return_list = multiprocessing.Manager().list([-1] * num_pairs)
+    index = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
             sketch1_name = filename_to_sketch_name[input_files[i]]
@@ -283,11 +288,21 @@ def main():
             sigs_and_abundances1 = filename_to_sig_dict[sketch1_name]
             sigs_and_abundances2 = filename_to_sig_dict[sketch2_name]
 
-            ret_list = [-1]
-            index = 0
-            compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, args.metric, ret_list, index)
-            metric = ret_list[0]
-            pair_to_metric_dict[(input_files[i], input_files[j])] = metric            
+            p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
+            index += 1
+            p.start()
+            process_list.append(p)
+
+    # wait for all the processes to finish
+    for p in process_list:
+        p.join()
+
+    # extract the values from the return_list
+    index = 0
+    for i in range(len(input_files)):
+        for j in range(i+1, len(input_files)):
+            pair_to_metric_dict[(input_files[i], input_files[j])] = return_list[index]
+            index += 1
 
     # write the output to a file
     with open(args.output_file, 'w') as f:
