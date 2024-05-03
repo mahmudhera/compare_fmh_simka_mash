@@ -266,22 +266,9 @@ def main():
     # read in all signatures
     filename_to_sig_dict = {}
 
-    index = 0
-    return_list = multiprocessing.Manager().list([-1] * len(input_files))
-    process_list = []
     for sketch_file in sketch_files:
-        p = multiprocessing.Process(target=read_fmh_sig_file_single_process, args=(sketch_file, args.ksize, args.seed, args.scale_factor, index, return_list))
-        index += 1
-        p.start()
-        process_list.append(p)
-
-    # wait for all the processes to finish
-    for p in process_list:
-        p.join()
-
-    # extract the values from the return_list
-    for i in range(len(input_files)):
-        filename_to_sig_dict[input_files[i]] = return_list[i]
+        sigs_and_abundances = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
+        filename_to_sig_dict[sketch_file] = sigs_and_abundances
 
     # compute pairwise metrics
     pair_to_metric_dict = {}
