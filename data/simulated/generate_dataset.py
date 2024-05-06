@@ -33,7 +33,7 @@ def main():
     n2 = get_num_lines_in_file(args.fastq2)
 
     # get the weights
-    weights = [i/args.num_files for i in range(args.num_files+1)]
+    weights = [i/args.num_files for i in range(1,args.num_files)]
     for weight in weights:
         lines_to_get_from_file1 = int(n1/4 * weight) * 4
         lines_to_get_from_file2 = int(n2/4 * (1-weight)) * 4
