@@ -38,11 +38,15 @@ def main():
         lines_to_get_from_file1 = int(n1/4 * weight) * 4
         lines_to_get_from_file2 = int(n2/4 * (1-weight)) * 4
 
+        # ensure that these numbers are multiples of 4
+
         # use cat and head to get the first n lines
         os.system(f"cat {args.fastq1} | head -n {lines_to_get_from_file1} > file1.fastq")
         os.system(f"cat {args.fastq2} | head -n {lines_to_get_from_file2} > file2.fastq")
         os.system(f"cat file1.fastq file2.fastq > file_{weight}.fastq")
         os.system(f"rm file1.fastq file2.fastq")
+
+        print(f"Generated file_{weight}.fastq")
 
 if __name__ == "__main__":
     main()
