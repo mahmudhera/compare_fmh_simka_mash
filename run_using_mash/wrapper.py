@@ -38,7 +38,7 @@ def main():
 
     # ensure that all files in the file list are present
     for file in files:
-        assert os.path.exists(file), f"{file} does not exist"
+        assert os.path.exists(file)
     
     print('*****************************')
     print('Running Mash')
