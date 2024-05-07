@@ -20,8 +20,8 @@ Thus, with evidence of both of these results, we can argue that FMH should be a 
 Currently we plan to compare the tools using the following dataset:
 
 1. One metagenomic dataset: HMP data
-1. One genomic dataset (not yet decided what this should be)
-1. One TODO dataset (not yet decided what this should be)
+1. One genomic dataset (3682 E coli genomes)
+1. One simulated dataset (using HMP gut data)
 
 ### TODO
 
