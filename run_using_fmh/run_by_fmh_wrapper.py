@@ -280,6 +280,7 @@ def main():
     num_pairs = num_files * (num_files - 1) // 2
     return_list = multiprocessing.Manager().list([-1] * num_pairs)
     index = 0
+    num_processes_to_call_join = 0
     for i in range(len(input_files)):
         for j in range(i+1, len(input_files)):
             sketch1_name = filename_to_sketch_name[input_files[i]]
@@ -292,6 +293,13 @@ def main():
             index += 1
             p.start()
             process_list.append(p)
+            num_processes_to_call_join += 1
+
+            if num_processes_to_call_join == num_processes_in_parallel:
+                for p in process_list:
+                    p.join()
+                num_processes_to_call_join = 0
+                process_list = []
 
     # wait for all the processes to finish
     for p in process_list:
