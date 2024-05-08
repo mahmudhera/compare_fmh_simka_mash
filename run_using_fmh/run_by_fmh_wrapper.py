@@ -62,6 +62,9 @@ def parse_arguments():
 
     # whether to skip sketch creation
     parser.add_argument('-skip_sketch', action='store_true', help='Skip sketch creation')
+
+    # whether to not parallelize the metric calculation
+    parser.add_argument('-np', '--no_parallelize_metric', action='store_true', help='Do not parallelize metric calculation')
     
     args = parser.parse_args()
     return args
@@ -259,6 +262,33 @@ def main():
     if args.sketch_only:
         print('Done')
         return
+    
+    if args.no_parallelize_metric:
+        pair_to_metric_dict = {}
+        for i in range(len(input_files)):
+            sketch1_name = filename_to_sketch_name[input_files[i]]
+            sigs_and_abundances1 = read_fmh_sig_file(sketch1_name, args.ksize, args.seed, args.scale_factor)
+            for j in range(i+1, len(input_files)):
+                print(f'Computing metric for {input_files[i]} and {input_files[j]}')
+                
+                sketch2_name = filename_to_sketch_name[input_files[j]]
+                sigs_and_abundances2 = read_fmh_sig_file(sketch2_name, args.ksize, args.seed, args.scale_factor)
+
+                # compute the metric
+                return_list = [-1]
+                index = 0
+                compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index)
+                pair_to_metric_dict[(input_files[i], input_files[j])] = return_list[index]
+
+                print(f'Computed metric for {input_files[i]} and {input_files[j]}')
+
+        # write the output to a file
+        with open(args.output_file, 'w') as f:
+            for pair, metric in pair_to_metric_dict.items():
+                f.write(f'{pair[0]}\t{pair[1]}\t{metric}\n')
+
+        print('Done')
+        return
 
 
     # measure time for rest of the code
@@ -282,11 +312,10 @@ def main():
     index = 0
     num_processes_to_call_join = 0
     for i in range(len(input_files)):
+        sketch1_name = filename_to_sketch_name[input_files[i]]
+        sigs_and_abundances1 = filename_to_sig_dict[sketch1_name]
         for j in range(i+1, len(input_files)):
-            sketch1_name = filename_to_sketch_name[input_files[i]]
             sketch2_name = filename_to_sketch_name[input_files[j]]
-
-            sigs_and_abundances1 = filename_to_sig_dict[sketch1_name]
             sigs_and_abundances2 = filename_to_sig_dict[sketch2_name]
 
             p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
