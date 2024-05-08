@@ -85,7 +85,7 @@ def main():
                 hash2 = filenames_to_hashes[filename2]
                 
                 dot_product = set(hash1).intersection(hash2)
-                cosine = len(dot_product) / (len(hash1) * len(hash2)**0.5)
+                cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
                 f.write(f"{filename1}\t{filename2}\t{cosine}\n")
 
 
