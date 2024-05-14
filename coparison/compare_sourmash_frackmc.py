@@ -16,7 +16,7 @@ filesize_to_filename = {
     5: working_dir + '/f1253_ihmp_IBD_MSM5LLI8_P.fastq.gz'
 }
 
-num_readings = 5
+num_readings = 3
 
 f = open("sourmash_frackmc_comparison.csv", "w")
 f.write("filesize, avg_sourmash_time, std_sourmash_time, avg_frackmc_time, std_frackmc_time\n")
@@ -36,7 +36,7 @@ for filesize, filename in filesize_to_filename.items():
     # command: frackmcsketch <filename> -o <output_filename> --ksize 21 --scaled 1000 --fq --t 128
     for _ in range(num_readings):
         start_time = time.time()
-        os.system(f"frackmcsketch {filename} -o {filename}.frackmc --ksize 21 --scaled 1000 --fq --t 128")
+        os.system(f"fracKmcSketch {filename} -o {filename}.frackmc --ksize 21 --scaled 1000 --fq --t 128")
         end_time = time.time()
         time_needed_frackmc.append(end_time - start_time)
 
