@@ -5,6 +5,25 @@ In this script, we will run mash to compute the results.
 import os
 import argparse
 import json
+import multiprocessing
+
+
+
+def process_a_range_of_pairs(filenames, filenames_to_hashes, all_i_j_pairs, start_index, end_index, return_list):
+    """
+    Compute the pairwise cosines for a range of pairs of files
+    """
+    for index in range(start_index, end_index):
+        i, j = all_i_j_pairs[index]
+        filename1 = filenames[i]
+        filename2 = filenames[j]
+        hash1 = filenames_to_hashes[filename1]
+        hash2 = filenames_to_hashes[filename2]
+        
+        dot_product = set(hash1).intersection(hash2)
+        cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
+        return_list[index] = cosine
+
 
 """
 arguments:
@@ -74,24 +93,43 @@ def main():
     print('Hashes read, computing pairwise cosines')
     print('*****************************')
 
-    # compute pairwise cosines (no abundances, so straightforward)
-    # iterate over all pairs of files
-    num_completed = 0
-    total_pairs = len(files) * (len(files) - 1) // 2
+    num_threads = 128
+    all_i_j_pairs = []
+    for i in range(len(files)):
+        for j in range(i+1, len(files)):
+            all_i_j_pairs.append((i, j))
+
+    # create a list using multiprocessing manager
+    # this list will be shared among all processes
+    return_list = multiprocessing.Manager().list([-1] * len(all_i_j_pairs))
+
+    list_processes = []
+    for i in range(num_threads):
+        start_index = i * len(all_i_j_pairs) // num_threads
+        end_index = (i + 1) * len(all_i_j_pairs) // num_threads
+        if i == num_threads - 1:
+            end_index = len(all_i_j_pairs)
+        p = multiprocessing.Process(target=process_a_range_of_pairs, args=(files, filenames_to_hashes, all_i_j_pairs, start_index, end_index, return_list))
+        p.start()
+        list_processes.append(p)
+
+    for p in list_processes:
+        p.join()
+
+    print('*****************************')
+    print('Computing completed, writing to file')
+    print('*****************************')
+
+    # write the results to the output file
+    index = 0
     with open(args.output_file, "w") as f:
+        f.write("file1,file2,cosine_similarity\n")
         for i in range(len(files)):
             for j in range(i+1, len(files)):
-                filename1 = files[i]
-                filename2 = files[j]
-                hash1 = filenames_to_hashes[filename1]
-                hash2 = filenames_to_hashes[filename2]
-                
-                dot_product = set(hash1).intersection(hash2)
-                cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
-                f.write(f"{filename1}\t{filename2}\t{cosine}\n")
-                num_completed += 1
-                print(f"Percentage completed {100*num_completed/total_pairs:.3f}%\r", end="")
-    print('')
+                cosine = return_list[index]
+                index += 1
+                f.write(f"{files[i]},{files[j]},{cosine}\n")
+
 
 
 if __name__ == "__main__":
