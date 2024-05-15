@@ -65,6 +65,9 @@ def parse_arguments():
 
     # whether to not parallelize the metric calculation
     parser.add_argument('-np', '--no_parallelize_metric', action='store_true', help='Do not parallelize metric calculation')
+
+    # whether to process the first n files only
+    parser.add_argument('-n', '--num_files', type=int, help='Number of files to process', default=-1)
     
     args = parser.parse_args()
     return args
@@ -226,6 +229,10 @@ def main():
                 continue
 
             input_files.append(line.strip())
+
+    # check if the user wants to process only a few files
+    if args.num_files != -1:
+        input_files = input_files[:args.num_files]
     
     # see if more than 4 threads are available
     if args.parallelize:
