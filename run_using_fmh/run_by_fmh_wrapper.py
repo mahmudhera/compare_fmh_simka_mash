@@ -271,7 +271,7 @@ def main():
             sketch1_name = filename_to_sketch_name[input_files[i]]
             sigs_and_abundances1 = read_fmh_sig_file(sketch1_name, args.ksize, args.seed, args.scale_factor)
             for j in range(i+1, len(input_files)):
-                print(f'Computing metric for {input_files[i]} and {input_files[j]}')
+                #print(f'Computing metric for {input_files[i]} and {input_files[j]}')
                 
                 sketch2_name = filename_to_sketch_name[input_files[j]]
                 sigs_and_abundances2 = read_fmh_sig_file(sketch2_name, args.ksize, args.seed, args.scale_factor)
