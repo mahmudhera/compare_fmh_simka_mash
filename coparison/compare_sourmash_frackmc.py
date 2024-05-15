@@ -19,7 +19,7 @@ filesize_to_filename = {
 num_readings = 3
 
 f = open("sourmash_frackmc_comparison.csv", "w")
-f.write("filesize, avg_sourmash_time, std_sourmash_time, avg_frackmc_time, std_frackmc_time\n")
+f.write("filesize,avg_sourmash_time,std_sourmash_time,avg_frackmc_time,std_frackmc_time\n")
 for filesize, filename in filesize_to_filename.items():
     print(filename)
     # Run sourmash sketch, and record the time
@@ -48,5 +48,5 @@ for filesize, filename in filesize_to_filename.items():
     # print the following: filesize, avg sourmash time, std sourmash time, avg frackmc time, std frackmc time
     # print these in one line, separated by comma
     print(f"{filesize}, {avg_sourmash_time}, {std_sourmash_time}, {avg_frackmc_time}, {std_frackmc_time}")
-    f.write(f"{filesize}, {avg_sourmash_time}, {std_sourmash_time}, {avg_frackmc_time}, {std_frackmc_time}\n")
+    f.write(f"{filesize},{avg_sourmash_time},{std_sourmash_time},{avg_frackmc_time},{std_frackmc_time}\n")
         

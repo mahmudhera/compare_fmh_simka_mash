@@ -76,6 +76,7 @@ def main():
 
     # compute pairwise cosines (no abundances, so straightforward)
     # iterate over all pairs of files
+    num_completed = 0
     with open(args.output_file, "w") as f:
         for i in range(len(files)):
             for j in range(i+1, len(files)):
@@ -87,6 +88,9 @@ def main():
                 dot_product = set(hash1).intersection(hash2)
                 cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
                 f.write(f"{filename1}\t{filename2}\t{cosine}\n")
+                num_completed += 1
+                print(f"Completed {num_completed} pairs\r", end="")
+    print('')
 
 
 if __name__ == "__main__":
