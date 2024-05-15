@@ -176,7 +176,6 @@ def compute_magnitute(sig):
     abundances_list = [abundance for min, abundance in sig]
     return sum([abundance**2 for abundance in abundances_list])**0.5
 
-
 def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
     # sig1 and sig2: list of tuples (min, abundance)
     if metric == 'cosine':
@@ -197,6 +196,21 @@ def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
         return_list[index] = return_value
     else:
         return_list[index] = -1
+
+
+def compute_metric_for_range_of_pairs(i_j_pairs_to_work_on, input_files, filename_to_sketch_name, start_index, end_index, return_list, metric, k, scaled, seed):
+    for index in range(start_index, end_index):
+        i, j = i_j_pairs_to_work_on[index-start_index]
+        sketch1_name = filename_to_sketch_name[input_files[i]]
+        sigs_and_abundances1 = read_fmh_sig_file(sketch1_name, k, seed, scaled)
+        sketch2_name = filename_to_sketch_name[input_files[j]]
+        sigs_and_abundances2 = read_fmh_sig_file(sketch2_name, k, seed, scaled)
+
+        # compute the metric
+        compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, metric, return_list, index)
+
+        # show progress
+        print(f'{index-start_index}/{len(end_index-start_index)} completed..', end='\r')
 
 
 def main():
@@ -301,14 +315,6 @@ def main():
     # measure time for rest of the code
     start_time = time.time()
 
-    # TODO: make this part parallel using multiprocessing
-    # read in all signatures
-    filename_to_sig_dict = {}
-
-    for sketch_file in sketch_files:
-        sigs_and_abundances = read_fmh_sig_file(sketch_file, args.ksize, args.seed, args.scale_factor)
-        filename_to_sig_dict[sketch_file] = sigs_and_abundances
-
     # compute pairwise metrics
     pair_to_metric_dict = {}
     print('Computing pairwise metrics')
@@ -316,28 +322,21 @@ def main():
     num_files = len(input_files)
     num_pairs = num_files * (num_files - 1) // 2
     return_list = multiprocessing.Manager().list([-1] * num_pairs)
-    index = 0
-    num_processes_to_call_join = 0
+
+    all_i_j_pairs = []
     for i in range(len(input_files)):
-        sketch1_name = filename_to_sketch_name[input_files[i]]
-        sigs_and_abundances1 = filename_to_sig_dict[sketch1_name]
         for j in range(i+1, len(input_files)):
-            sketch2_name = filename_to_sketch_name[input_files[j]]
-            sigs_and_abundances2 = filename_to_sig_dict[sketch2_name]
+            all_i_j_pairs.append((i, j))
 
-            p = multiprocessing.Process(target=compute_metric_for_a_pair, args=(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index))
-            index += 1
-            p.start()
-            process_list.append(p)
-            num_processes_to_call_join += 1
+    num_processes = 128
+    for i in range(num_processes):
+        start_index = i * num_pairs // num_processes
+        end_index = (i+1) * num_pairs // num_processes
 
-            if num_processes_to_call_join == num_processes_in_parallel:
-                for p in process_list:
-                    p.join()
-                num_processes_to_call_join = 0
-                process_list = []
+        p = multiprocessing.Process(target=compute_metric_for_range_of_pairs, args=(all_i_j_pairs[start_index:end_index], input_files, filename_to_sketch_name, start_index, end_index, return_list, args.metric, args.ksize, args.scale_factor, args.seed))
+        process_list.append(p)
+        p.start()
 
-    # wait for all the processes to finish
     for p in process_list:
         p.join()
 
