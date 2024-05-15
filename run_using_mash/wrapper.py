@@ -90,7 +90,7 @@ def main():
                 cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
                 f.write(f"{filename1}\t{filename2}\t{cosine}\n")
                 num_completed += 1
-                print(f"Percentage completed {100*num_completed/total_pairs}%\r", end="")
+                print(f"Percentage completed {100*num_completed/total_pairs:.3f}%\r", end="")
     print('')
 
 
