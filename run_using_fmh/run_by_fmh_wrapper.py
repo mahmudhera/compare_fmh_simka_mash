@@ -285,7 +285,7 @@ def main():
                 #print(f'Computed metric for {input_files[i]} and {input_files[j]}')
                 num_completed += 1
                 # show percentage progress
-                print(f'{100*num_completed}/{num_total_pairs:.3f}% completed..', end='\r')
+                print(f'{100*num_completed/num_total_pairs:.3f}% completed..', end='\r')
 
         print('')
 
