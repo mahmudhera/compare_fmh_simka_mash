@@ -265,6 +265,8 @@ def main():
     
     if args.no_parallelize_metric:
         pair_to_metric_dict = {}
+        num_completed = 0
+        num_total_pairs = len(input_files) * (len(input_files) - 1) // 2
         for i in range(len(input_files)):
             sketch1_name = filename_to_sketch_name[input_files[i]]
             sigs_and_abundances1 = read_fmh_sig_file(sketch1_name, args.ksize, args.seed, args.scale_factor)
@@ -280,7 +282,12 @@ def main():
                 compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, args.metric, return_list, index)
                 pair_to_metric_dict[(input_files[i], input_files[j])] = return_list[index]
 
-                print(f'Computed metric for {input_files[i]} and {input_files[j]}')
+                #print(f'Computed metric for {input_files[i]} and {input_files[j]}')
+                num_completed += 1
+                # show percentage progress
+                print(f'{100*num_completed}/{num_total_pairs:.3f}% completed..', end='\r')
+
+        print('')
 
         # write the output to a file
         with open(args.output_file, 'w') as f:
