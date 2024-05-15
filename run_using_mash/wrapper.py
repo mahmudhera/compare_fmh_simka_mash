@@ -77,6 +77,7 @@ def main():
     # compute pairwise cosines (no abundances, so straightforward)
     # iterate over all pairs of files
     num_completed = 0
+    total_pairs = len(files) * (len(files) - 1) // 2
     with open(args.output_file, "w") as f:
         for i in range(len(files)):
             for j in range(i+1, len(files)):
@@ -89,7 +90,7 @@ def main():
                 cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
                 f.write(f"{filename1}\t{filename2}\t{cosine}\n")
                 num_completed += 1
-                print(f"Completed {num_completed} pairs\r", end="")
+                print(f"Percentage completed {100*num_completed/total_pairs}%\r", end="")
     print('')
 
 
