@@ -210,7 +210,7 @@ def compute_metric_for_range_of_pairs(i_j_pairs_to_work_on, input_files, filenam
         compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, metric, return_list, index)
 
         # show progress
-        print(f'{index-start_index}/{len(end_index-start_index)} completed..', end='\r')
+        print(f'{index-start_index}/{(end_index-start_index)} completed..', end='\r')
 
 
 def main():
