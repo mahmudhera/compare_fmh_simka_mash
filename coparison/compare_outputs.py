@@ -13,15 +13,17 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description="Compare outputs of different methods")
     parser.add_argument("fmh_output", type=str, help="Path to FMH output file")
-    parser.add_argument("simka_output", type=str, help="Path to Simka output file")
+    parser.add_argument("mash_output", type=str, help="Path to Mash output file")
+    parser.add_argument("gt_output", type=str, help="Path to ground truth output file")
 
     return parser.parse_args()
 
-def read_fmh_output(fmh_output):
+def read_output(fmh_output):
     """
     Read the FMH output file and return the cosine similarity values indexed by proper pairs
     """
-    df = pd.read_csv(fmh_output, sep="\t", header=None)
+    # use whitespaces as separator
+    df = pd.read_csv(fmh_output, header=None, delim_whitespace=True)
     df.columns = ["file1", "file2", "cosine_similarity"]
 
     # iterate over all rows
@@ -36,51 +38,29 @@ def read_fmh_output(fmh_output):
 
     return pair_to_cosine
 
-def read_simka_output(simka_output):
-    """
-    Read the Simka output file and return the Chord distance values indexed by proper pairs
-    """
-    df = pd.read_csv(simka_output, sep=";")
-
-    # get the first column as a list
-    filenames = list(df.columns)
-
-    # iterate over all pairs. The df is a square matrix. Header contains filenames
-    pair_to_chord = {}
-    for i in range(1, len(filenames)):
-        for j in range(i+1, len(filenames)):
-            filename1 = filenames[i]
-            filename1 = filename1.split("/")[-1]
-            filename2 = filenames[j]
-            filename2 = filename2.split("/")[-1]
-            
-            pair_to_chord[(filename1, filename2)] = df.iloc[i-1, j]
-            pair_to_chord[(filename2, filename1)] = df.iloc[i-1, j]
-
-    return pair_to_chord
-
-def chord_to_cosine(chord):
-    """
-    Convert Chord distance to Cosine similarity
-    """
-    return 1.0 - 0.5 * chord**2
-
-def compare_outputs(fmh_output, simka_output):
+def compare_outputs(fmh_output, mash_output, gt_output):
     """
     Compare the outputs of FMH and Simka
     """
-    pair_to_cosine = read_fmh_output(fmh_output)
-    pair_to_chord = read_simka_output(simka_output)
+    pairs_to_cosine_fmh = read_output(fmh_output)
+    pairs_to_cosine_mash = read_output(mash_output)
+    pairs_to_cosine_gt = read_output(gt_output)
 
     # iterate over all pairs and compare the values
-    for pair in pair_to_cosine:
-        cosine_fmh = pair_to_cosine[pair]
-        chord_simka = pair_to_chord[pair]
-        cosine_simka = chord_to_cosine(chord_simka)
+    print('fmh_error, mash_error')
+    for pair in pairs_to_cosine_fmh:
+        cosine_fmh = pairs_to_cosine_fmh[pair]
+        cosine_mash = pairs_to_cosine_mash[pair]
+        cosine_gt = pairs_to_cosine_gt[pair]
 
-        print(f"{pair}, {chord_simka}, {cosine_simka}, {cosine_fmh}, {cosine_simka - cosine_fmh}")
+        # continue if any of these < 0
+        if cosine_fmh < 0 or cosine_mash < 0 or cosine_gt < 0:
+            continue
+
+        # print: cosine_fmh-cosine_gt, cosine_mash-cosine_gt
+        print(cosine_fmh - cosine_gt, cosine_mash - cosine_gt)
 
 
 if __name__ == "__main__":
     args = parse_args()
-    compare_outputs(args.fmh_output, args.simka_output)
+    compare_outputs(args.fmh_output, args.mash_output, args.gt_output)
