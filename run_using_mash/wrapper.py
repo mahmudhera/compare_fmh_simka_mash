@@ -39,6 +39,7 @@ def parse_args():
     parser.add_argument("--kmer_size", type=int, default=21, help="Kmer size")
     parser.add_argument("--sketch_size", type=int, default=10000, help="Sketch size")
     parser.add_argument("--num_cores", type=int, default=128, help="Num of cores to parallelize over")
+    parser.add_argument('--no_parallel', dest='no_parallel', action='store_true', help='Do not parallelize')
     return parser.parse_args()
 
 def main():
@@ -92,6 +93,19 @@ def main():
     print('*****************************')
     print('Hashes read, computing pairwise cosines')
     print('*****************************')
+
+    if args.no_parallel:
+        for i in range(len(files)):
+            for j in range(i+1, len(files)):
+                filename1 = files[i]
+                filename2 = files[j]
+                hash1 = filenames_to_hashes[filename1]
+                hash2 = filenames_to_hashes[filename2]
+                
+                dot_product = set(hash1).intersection(hash2)
+                cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
+                with open(args.output_file, "a") as f:
+                    f.write(f"{filename1},{filename2},{cosine}\n")
 
     num_threads = 128
     all_i_j_pairs = []
