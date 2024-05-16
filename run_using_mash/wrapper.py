@@ -95,6 +95,9 @@ def main():
     print('*****************************')
 
     if args.no_parallel:
+        pair_to_metric_dict = {}
+        num_completed = 0
+        total = len(files) * (len(files) - 1) // 2
         for i in range(len(files)):
             for j in range(i+1, len(files)):
                 filename1 = files[i]
@@ -104,8 +107,20 @@ def main():
                 
                 dot_product = set(hash1).intersection(hash2)
                 cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
-                with open(args.output_file, "a") as f:
-                    f.write(f"{filename1},{filename2},{cosine}\n")
+                pair_to_metric_dict[(filename1, filename2)] = cosine
+                num_completed += 1
+                print(f"Completed {num_completed} out of {total}", end='\r')
+        print()
+        print('*****************************')
+        print('Computing completed, writing to file')
+        print('*****************************')
+
+        # write the results to the output file
+        with open(args.output_file, "w") as f:
+            f.write("file1,file2,cosine_similarity\n")
+            for (filename1, filename2), cosine in pair_to_metric_dict.items():
+                f.write(f"{filename1},{filename2},{cosine}\n")
+                
 
     num_threads = 128
     all_i_j_pairs = []
