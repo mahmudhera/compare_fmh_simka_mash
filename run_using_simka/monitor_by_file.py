@@ -115,6 +115,12 @@ def main(file_to_monitor, output_file):
             f.write(f'Walltime (seconds): {walltime_end - time_snapshot}\n')
             f.write('\n')
 
+        # print total for stage1 and stage2 combined
+        f.write('Total:\n')
+        f.write(f'Peak memory usage (bytes): max{peak_memory_stage1,peak_memory_stage2}\n')
+        f.write(f'Total CPU time (seconds): {total_cpu_time_stage1 + total_cpu_time_stage2}\n')
+        f.write(f'Walltime (seconds): {walltime_end - walltime_start}\n')
+
     print('**********************************')
     print('EXITING MONITOR SCRIPT')
     print('**********************************')
