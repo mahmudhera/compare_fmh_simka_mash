@@ -49,9 +49,12 @@ def compare_outputs(fmh_output, mash_output, gt_output):
     # iterate over all pairs and compare the values
     print('fmh_error, mash_error, gt, fmh, mash')
     for pair in pairs_to_cosine_fmh:
-        cosine_fmh = pairs_to_cosine_fmh[pair]
-        cosine_mash = pairs_to_cosine_mash[pair]
-        cosine_gt = pairs_to_cosine_gt[pair]
+        try:
+            cosine_fmh = pairs_to_cosine_fmh[pair]
+            cosine_mash = pairs_to_cosine_mash[pair]
+            cosine_gt = pairs_to_cosine_gt[pair]
+        except KeyError:
+            continue
 
         # continue if any of these < 0
         if cosine_fmh < 0 or cosine_mash < 0 or cosine_gt < 0:
