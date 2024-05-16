@@ -47,7 +47,7 @@ def compare_outputs(fmh_output, mash_output, gt_output):
     pairs_to_cosine_gt = read_output(gt_output)
 
     # iterate over all pairs and compare the values
-    print('fmh_error, mash_error')
+    print('fmh_error, mash_error, gt, fmh, mash')
     for pair in pairs_to_cosine_fmh:
         cosine_fmh = pairs_to_cosine_fmh[pair]
         cosine_mash = pairs_to_cosine_mash[pair]
@@ -58,7 +58,7 @@ def compare_outputs(fmh_output, mash_output, gt_output):
             continue
 
         # print: cosine_fmh-cosine_gt, cosine_mash-cosine_gt
-        print(cosine_fmh - cosine_gt, cosine_mash - cosine_gt)
+        print(cosine_fmh - cosine_gt, cosine_mash - cosine_gt, cosine_gt, cosine_fmh, cosine_mash)
 
 
 if __name__ == "__main__":
