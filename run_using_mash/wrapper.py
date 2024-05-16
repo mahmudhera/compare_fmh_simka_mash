@@ -13,6 +13,7 @@ def process_a_range_of_pairs(filenames, filenames_to_hashes, all_i_j_pairs, star
     """
     Compute the pairwise cosines for a range of pairs of files
     """
+    completed = 0
     for index in range(start_index, end_index):
         i, j = all_i_j_pairs[index]
         filename1 = filenames[i]
@@ -23,6 +24,9 @@ def process_a_range_of_pairs(filenames, filenames_to_hashes, all_i_j_pairs, star
         dot_product = set(hash1).intersection(hash2)
         cosine = len(dot_product) / (len(hash1)**0.5 * len(hash2)**0.5)
         return_list[index] = cosine
+
+        completed += 1
+        print(f"Completed {completed} out of {end_index - start_index}", end='\r')
 
 
 """
