@@ -279,6 +279,9 @@ def main():
     for p in processes_to_call_join:
         p.start()
 
+    for p in processes_to_call_join:
+        p.join()
+
     # check if the user only wants to sketch
     if args.sketch_only:
         print('Done')
