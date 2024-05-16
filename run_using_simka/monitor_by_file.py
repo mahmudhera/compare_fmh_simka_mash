@@ -27,7 +27,7 @@ def main(file_to_monitor, output_file):
     stage1 = True
     stage2 = False
 
-    time_to_sleep = 0.03
+    time_to_sleep = 0.001
 
     last_time_monitored = time.time()
 
