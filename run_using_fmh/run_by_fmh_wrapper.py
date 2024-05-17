@@ -201,13 +201,11 @@ def compute_metric_for_a_pair(sig1, sig2, metric, return_list, index):
         return_list[index] = -1
 
 
-def compute_metric_for_range_of_pairs(i_j_pairs_to_work_on, input_files, filename_to_sketch_name, start_index, end_index, return_list, metric, k, scaled, seed):
+def compute_metric_for_range_of_pairs(i_j_pairs_to_work_on, all_sketches, start_index, end_index, return_list, metric):
     for index in range(start_index, end_index):
         i, j = i_j_pairs_to_work_on[index-start_index]
-        sketch1_name = filename_to_sketch_name[input_files[i]]
-        sigs_and_abundances1 = read_fmh_sig_file(sketch1_name, k, seed, scaled)
-        sketch2_name = filename_to_sketch_name[input_files[j]]
-        sigs_and_abundances2 = read_fmh_sig_file(sketch2_name, k, seed, scaled)
+        sigs_and_abundances1 = all_sketches[i]
+        sigs_and_abundances2 = all_sketches[j]
 
         # compute the metric
         compute_metric_for_a_pair(sigs_and_abundances1, sigs_and_abundances2, metric, return_list, index)
@@ -325,6 +323,12 @@ def main():
     # measure time for rest of the code
     start_time = time.time()
 
+    all_sketches = []
+    for i in range(len(input_files)):
+        sketch_name = filename_to_sketch_name[input_files[i]]
+        sigs_and_abundances = read_fmh_sig_file(sketch_name, args.ksize, args.seed, args.scale_factor)
+        all_sketches.append(sigs_and_abundances)
+
     # compute pairwise metrics
     pair_to_metric_dict = {}
     print('Computing pairwise metrics')
@@ -343,7 +347,7 @@ def main():
         start_index = i * num_pairs // num_processes
         end_index = (i+1) * num_pairs // num_processes
 
-        p = multiprocessing.Process(target=compute_metric_for_range_of_pairs, args=(all_i_j_pairs[start_index:end_index], input_files, filename_to_sketch_name, start_index, end_index, return_list, args.metric, args.ksize, args.scale_factor, args.seed))
+        p = multiprocessing.Process(target=compute_metric_for_range_of_pairs, args=(all_i_j_pairs, all_sketches, start_index, end_index, return_list, args.metric))
         process_list.append(p)
         p.start()
 
