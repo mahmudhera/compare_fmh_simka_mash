@@ -1,0 +1,5 @@
+rule all:
+    input: 'filelist_for_simka'
+    output: 'simka_output/mat_abundance_ab-jaccard.csv.gz'
+    benchmark: 'simka_testrun_benchmark'
+    shell: 'simka -in filelist_for_simka -out-tmp ./simka_tmp -out ./simka_output'

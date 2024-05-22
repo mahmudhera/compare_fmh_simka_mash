@@ -1,35 +1,22 @@
-# Comparing FracMinHash, Mash, and SIMKA
+# Installation
 
-This repository compares the following tools:
+1. Install the packages in requirements.txt
+```
+conda create -n cosine_fmh_env --file requirements.txt
+conda activate cosine_fmh_env
+```
+1. Install Simka:
+```
+wget https://github.com/GATB/simka/releases/download/v1.5.3/simka-v1.5.3-bin-Linux.tar.gz
+tar -xvzf simka-v1.5.3-bin-Linux.tar.gz
+```
+Then, add the directory in the PATH.
+1. Install frac-kmc
+(a) download binaries from https://github.com/KoslickiLab/frac-kmc/tree/main/wrappers/bin
+(b) add the directory in the PATH environment
 
-1. FracMinHash based tool
-1. All k-mer based tool (SIMKA)
-1. MinHash based tool (Mash)
+# Tables
 
-## What we want to show
+# Figure 1
 
-Hopefully, after running the experiments, we will observe the following:
-
-1. FMH should be more accurate than Mash
-1. FMH should be less resource intensive than SIMKA
-
-Thus, with evidence of both of these results, we can argue that FMH should be a good balance in resources and accuracy, bringing together the good of both worlds.
-
-## Datasets
-
-Currently we plan to compare the tools using the following dataset:
-
-1. One metagenomic dataset: HMP data
-1. One genomic dataset (3682 E coli genomes)
-1. One simulated dataset (using HMP gut data)
-
-### TODO
-
-1. Download the dataset
-1. Write wrapper tools for all of these
-1. Run all tools to record results and resource usages
-1. Plot results
-
-
-### Requirements
-1. FracKmcSketch -- needs to be in path
+# Figure 2
