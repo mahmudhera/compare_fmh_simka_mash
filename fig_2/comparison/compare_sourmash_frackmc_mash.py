@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 In this script, we compare the running time of sourmash sketch and frackmcsketch on the same dataset.
 """
