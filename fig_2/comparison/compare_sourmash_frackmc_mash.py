@@ -20,7 +20,7 @@ filesize_to_filename = {
 num_readings = 5
 
 # init conda 
-os.system("source /home/grads/mbr5797/anaconda3/etc/profile.d/conda.sh")
+os.system(". /home/grads/mbr5797/anaconda3/etc/profile.d/conda.sh")
 
 f = open("sourmash_frackmc_mash_comparison.csv", "w")
 f.write("filesize,avg_sourmash_time,std_sourmash_time,avg_frackmc_time_ome_thread,std_frackmc_time_one_thread,avg_frackmc_time_many_threads,std_frackmc_time_many_threads,avg_mash_time,std_mash_time\n")
