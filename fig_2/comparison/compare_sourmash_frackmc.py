@@ -22,6 +22,10 @@ f = open("sourmash_frackmc_mash_comparison.csv", "w")
 f.write("filesize,avg_sourmash_time,std_sourmash_time,avg_frackmc_time_ome_thread,std_frackmc_time_one_thread,avg_frackmc_time_many_threads,std_frackmc_time_many_threads,avg_mash_time,std_mash_time\n")
 for filesize, filename in filesize_to_filename.items():
     print(filename)
+
+    # activate conda environment sourmash_env
+    os.system("conda activate sourmash_env")
+
     # Run sourmash sketch, and record the time
     # command: sourmash sketch dna <filename> -p k=21,scaled=1000 -o <output_filename>
     time_needed_sourmash = []
@@ -30,6 +34,9 @@ for filesize, filename in filesize_to_filename.items():
         os.system(f"sourmash sketch dna {filename} -p k=21,scaled=1000 -o {filename}.sourmash")
         end_time = time.time()
         time_needed_sourmash.append(end_time - start_time)
+
+    # deactivate conda environment sourmash_env
+    os.system("conda deactivate")
 
     # exclude the min and the max time
     time_needed_sourmash = time_needed_sourmash.sort()
@@ -60,6 +67,9 @@ for filesize, filename in filesize_to_filename.items():
     time_needed_frackmc = time_needed_frackmc.sort()
     time_needed_frackmc_one_thread = time_needed_frackmc[1:-1]
 
+    # activate conda environment minhash
+    os.system("conda activate minhash")
+
     # Run mash sketch, and record the time
     time_needed_mash = []
     for _ in range(num_readings):
@@ -67,6 +77,9 @@ for filesize, filename in filesize_to_filename.items():
         os.system(f"mash sketch {filename} -o {filename}.mash")
         end_time = time.time()
         time_needed_mash.append(end_time - start_time)
+
+    # deactivate conda environment minhash
+    os.system("conda deactivate")
 
     # exclude the min and the max time
     time_needed_mash = time_needed_mash.sort()
