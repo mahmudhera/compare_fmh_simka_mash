@@ -28,7 +28,7 @@ for filesize, filename in filesize_to_filename.items():
         time_needed_mash.append(end_time - start_time)
 
     # exclude the min and the max time
-    time_needed_mash = time_needed_mash.sort()
+    _ = time_needed_mash.sort()
     time_needed_mash = time_needed_mash[1:-1]
 
     avg_mash_time = np.mean(time_needed_mash)

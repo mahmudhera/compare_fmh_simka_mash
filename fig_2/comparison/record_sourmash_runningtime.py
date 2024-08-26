@@ -28,7 +28,7 @@ for filesize, filename in filesize_to_filename.items():
         time_needed_sourmash.append(end_time - start_time)
 
     # exclude the min and the max time
-    time_needed_sourmash = time_needed_sourmash.sort()
+    time_needed_sourmash.sort()
     time_needed_sourmash = time_needed_sourmash[1:-1]
 
     avg_sourmash_time = np.mean(time_needed_sourmash)

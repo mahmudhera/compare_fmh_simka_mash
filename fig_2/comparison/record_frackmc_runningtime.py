@@ -27,7 +27,7 @@ for filesize, filename in filesize_to_filename.items():
         time_needed_frackmc_one_thread.append(end_time - start_time)
 
     # exclude the min and the max time
-    time_needed_frackmc_one_thread = time_needed_frackmc_one_thread.sort()
+    _ = time_needed_frackmc_one_thread.sort()
     time_needed_frackmc_one_thread = time_needed_frackmc_one_thread[1:-1]
 
     avg_frackmc_time = np.mean(time_needed_frackmc_one_thread)
@@ -54,7 +54,7 @@ for filesize, filename in filesize_to_filename.items():
         time_needed_frackmc_one_thread.append(end_time - start_time)
 
     # exclude the min and the max time
-    time_needed_frackmc_one_thread = time_needed_frackmc_one_thread.sort()
+    _ = time_needed_frackmc_one_thread.sort()
     time_needed_frackmc_one_thread = time_needed_frackmc_one_thread[1:-1]
 
     avg_frackmc_time = np.mean(time_needed_frackmc_one_thread)
