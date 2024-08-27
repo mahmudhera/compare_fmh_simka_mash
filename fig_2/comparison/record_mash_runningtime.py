@@ -1,6 +1,5 @@
 import os
 import time
-import numpy as np
 
 working_dir = "/scratch/mbr5797/compare_fmh_simka_mash/data/hmp_gut/wgs"
 filesize_to_filename = {
@@ -31,8 +30,8 @@ for filesize, filename in filesize_to_filename.items():
     _ = time_needed_mash.sort()
     time_needed_mash = time_needed_mash[1:-1]
 
-    avg_mash_time = np.mean(time_needed_mash)
-    std_mash_time = np.std(time_needed_mash)
+    avg_mash_time = 1.0 * sum(time_needed_mash) / len(time_needed_mash)
+    std_mash_time = (sum([(t - avg_mash_time) ** 2 for t in time_needed_mash]) / len(time_needed_mash)) ** 0.5
     
     f.write(f"{filesize},{avg_mash_time},{std_mash_time}\n")
     f.flush()
