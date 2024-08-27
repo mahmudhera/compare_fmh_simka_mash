@@ -22,7 +22,7 @@ for filesize, filename in filesize_to_filename.items():
     time_needed_mash = []
     for _ in range(num_readings):
         start_time = time.time()
-        os.system(f"sourmash sketch dna {filename} -p k=21,scaled=1000 -o {filename}.sourmash")
+        os.system(f"mash sketch -s 1000 -k 21 {filename}")
         end_time = time.time()
         time_needed_mash.append(end_time - start_time)
 
